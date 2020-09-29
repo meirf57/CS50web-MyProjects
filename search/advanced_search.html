@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Search</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-light" style = "background-color: #FAF0E6;">
+            <a class="navbar-brand">Search</a>
+            <div class="collapse navbar-collapse" id="navbar">
+                    <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Search</a></li>
+                    </ul>
+            </div>
+        </nav>
+
+        <div class="container p-5">
+            <h2>Advanced Search</h2>
+            <br>
+            <form action="https://google.com/search" >
+                <div class="form-group">
+                    <input autocomplete="off" autofocus class="form-control" type="text" name="as_q" placeholder="All these words">
+                </div>
+                <div class="form-group">
+                    <input autocomplete="off" autofocus class="form-control" type="text" name="as_epq" placeholder="This word or phrase">
+                </div>
+                <div class="form-group">
+                    <input autocomplete="off" autofocus class="form-control" type="text" name="as_oq" placeholder="Any of these words">
+                </div>
+                <div class="form-group">
+                    <input autocomplete="off" autofocus class="form-control" type="text" name="as_eq" placeholder="None of these words">
+                </div>
+                <input class="btn btn-primary" type="submit" value="Advanced Search">
+            </form>
+        </div>
+        
+    </body>
+</html>

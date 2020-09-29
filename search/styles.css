@@ -1,0 +1,41 @@
+nav .navbar-brand
+{
+    /* size for brand */
+    font-size: xxx-large;
+    font-family: "Bubblegum Sans";
+    font-variant: normal; font-weight: 700;
+    text-shadow: -1px -1px 0 #dac292, 1px -1px 0 #dac292,	-1px 1px 0 #dac292, 1px 1px 0 #dac292;
+}
+
+.nav-link{
+  font-size: large;
+  font-variant: normal;
+  font-weight: 500;
+}
+
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
+
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
