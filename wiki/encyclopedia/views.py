@@ -143,5 +143,5 @@ def random_my(request):
         html = markdown(g)
         return render(request, "encyclopedia/title.html", {
         "title" : html,
-        "t": temp_l[x] + str(x)
+        "t": temp_l[x]
         })
