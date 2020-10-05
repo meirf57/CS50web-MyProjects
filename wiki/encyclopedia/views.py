@@ -134,7 +134,7 @@ def random_my(request):
     temp_l = util.list_entries()
     y = len(temp_l)
     # random number of items in list
-    x = random.randint(0,y)
+    x = random.randint(0,y - 1)
     # getting data of selected item
     title = temp_l[x]
     g = util.get_entry(title)
@@ -143,5 +143,5 @@ def random_my(request):
         html = markdown(g)
         return render(request, "encyclopedia/title.html", {
         "title" : html,
-        "t": temp_l[x]
+        "t": temp_l[x] + str(x)
         })
