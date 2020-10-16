@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if edit %}
+        <h3>Editing {{ title }}</h3>
+    {% else %}
+        <h3>New Listing:</h3>
+    {% endif %}
+    
+    {% if existing %}
+    <div class="alert alert-secondary" role="alert">
+        This Listing already exists. If you want you can change the name down here.
+    </div>
+    {% endif %}
+    <br>    
+    <form action="{% url 'CreateListing' %}" method="post">
+        {% csrf_token %}
+        {% for item in form %} 
+        <div class="form-group">{{ item }}</div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Add Listing</button>
+    </form>
+    
+{% endblock %}

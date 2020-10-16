@@ -1,0 +1,31 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+
+    <div class="card-column">
+        {% for listing in Listings %}
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+
+                    <li style="padding-right:1em">
+                    {% if listing.image %}
+                        <img src="{{ listing.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                    {% endif %}
+                    </li>
+                    <li>
+                        <h5>{{ listing.title }}</h5>
+                        <p>{{ listing.description }}</p>
+                        <small>Bidding Price: {{ listing.price }}</small>
+                    </li>
+                </div>
+                    </ul>
+                <div class="card-footer">
+                    <small class="text-muted">{{ listing.timeStamp }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+{% endblock %}
