@@ -44,6 +44,17 @@
                             {% endif %}
                             <li>Listed By: {{ listing.creator }}</li>
                         </ul>
+                        {% if watched == 'on list' %}
+                            <form  action="{% url 'remove_watchlist' listing.id %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger" type="submit">Remove From Watchlist</button>
+                            </form>
+                        {% elif watched != "on list" %}
+                            <form  action="{% url 'watchlist' listing.id %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-success" type="submit">Add to Watchlist</button>
+                            </form>
+                        {% endif %}
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">Date Created: {{ listing.timeStamp }}</small>

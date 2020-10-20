@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django import forms
 
-from .models import User, Listing, Bids
+from .models import User, Listing, Bids, Watchlist
 
 # home/main page
 def index(request):
@@ -135,6 +135,18 @@ def slisting(request, id):
         listing = Listing.objects.get(id=id)
     except:
         return HttpResponseRedirect(reverse("index"))
+    try:
+        temp_w = []
+        watch = Watchlist.objects.filter(user=request.user.username)
+        for x in watch:
+            temp_w.append(x.listing)
+        if listing.title in temp_w:
+            watched = "on list"
+        else:
+            watched = 'not'
+    except:
+        watched = "not"
+        f"Error in getting info or not found"
     # checking bids for current price
     try:
         bid_l = Bids.objects.filter(item=listing.title).order_by('price_bid')
@@ -144,17 +156,20 @@ def slisting(request, id):
         bid = max(temp)
         return render(request, "auctions/slisting.html",{
         "listing" : listing,
-        "bid" : bid
+        "bid" : bid,
+        "watched" : watched
     })
     except:
         f"Error in getting info or not found"
     # return data if no bids found
     return render(request, "auctions/slisting.html",{
-        "listing" : listing
+        "listing" : listing,
+        "watched" : watched
     })
 
 
 # check and place bid
+@login_required
 def bid(request, id):
     # getting data of bid, bids, current price
     if request.method == "POST":
@@ -181,10 +196,29 @@ def bid(request, id):
             try:
                 bid = Bids(creator=request.user, price_bid=bid_amount, item=listing.title)
                 bid.save()
-                messages.info(request, f"Bid successful!. Your Input: {bid_amount}")
+                messages.info(request, f"Bid successful! Your Input: {bid_amount}")
                 return redirect('SeeListing', id=id)
             except:
                 return HttpResponseRedirect(reverse("index"))
         else:
             messages.warning(request, f"Bid must be higher than current bid price. Your Input: {bid_amount}")
             return redirect('SeeListing', id=id)
+
+
+@login_required
+def watchlist(request, id):
+    if request.method == "POST":
+        if request.user.username:
+            listing = Listing.objects.get(id=id)
+            w = Watchlist(user=request.user.username, listing=listing.title)
+            w.save()
+            messages.info(request, f"Added to Watchlist!")
+            return redirect('SeeListing', id=id)
+        else:
+            return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "auctions/watchlist.html")
+
+@login_required
+def remove_watchlist(request, id):
+    pass
