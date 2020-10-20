@@ -1,0 +1,54 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ listing.title }}</h2>
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+        <div class="card-column">
+                <div class="card">
+                    <div class="card-body">
+                        {% if listing.image %}
+                            <img src="{{ listing.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <p>{{ listing.description }}</p>
+                        {% if bid %}
+                            <h3>Bidding Price: {{ bid }}</h3>
+                            <h5>Initial Price: {{ listing.price }}</h5>
+                        {% else %}
+                            <h3>Starting Price: {{ listing.price }}</h3>
+                        {% endif %}
+                        
+                        <br>
+                        <form  action="{% url 'bid' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input autofocus class="form-control" type="number" step=".01" name="bid" placeholder="Bid">
+                            </div>
+                            <button class="btn btn-primary" type="submit">Place Bid</button>
+                        </form>
+                        <br>
+                        
+                        <h5>Details:</h5>
+                        <ul>
+                            {% if listing.category %}
+                                <li>Category: {{ listing.category }}</li>
+                            {% endif %}
+                            <li>Listed By: {{ listing.creator }}</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Date Created: {{ listing.timeStamp }}</small>
+                    </div>
+                </div>
+        </div>
+
+{% endblock %}

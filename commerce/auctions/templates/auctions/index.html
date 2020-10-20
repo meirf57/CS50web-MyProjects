@@ -6,7 +6,7 @@
     <div class="card-column">
         {% for listing in Listings %}
             <div class="card">
-                <div class="card-body">
+                <a href="{% url 'SeeListing' listing.id %}" style='color:inherit'><div class="card-body">
                     <ul class="list-group list-group-horizontal" style="list-style-type: none;">
 
                     <li style="padding-right:1em">
@@ -23,7 +23,7 @@
                     </ul>
                 <div class="card-footer">
                     <small class="text-muted">{{ listing.timeStamp }}</small>
-                </div>
+                </div></a>
             </div>
         {% endfor %}
     </div>
