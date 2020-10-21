@@ -139,8 +139,8 @@ def slisting(request, id):
         temp_w = []
         watch = Watchlist.objects.filter(user=request.user.username)
         for x in watch:
-            temp_w.append(x.listing)
-        if listing.title in temp_w:
+            temp_w.append(x.listing_id)
+        if listing.id in temp_w:
             watched = "on list"
         else:
             watched = 'not'
@@ -210,15 +210,42 @@ def watchlist(request, id):
     if request.method == "POST":
         if request.user.username:
             listing = Listing.objects.get(id=id)
-            w = Watchlist(user=request.user.username, listing=listing.title)
+            w = Watchlist(user=request.user.username, listing=listing.title, listing_id=id)
             w.save()
             messages.info(request, f"Added to Watchlist!")
             return redirect('SeeListing', id=id)
         else:
             return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/watchlist.html")
+        return HttpResponseRedirect(reverse("index"))
 
 @login_required
 def remove_watchlist(request, id):
-    pass
+    if request.method == "POST":
+        if request.user.username:
+            Watchlist.objects.filter(listing_id=id).delete()
+            messages.info(request, f"Removed from Watchlist!")
+            return redirect('SeeListing', id=id)
+        else:
+            return HttpResponseRedirect(reverse("index"))
+    else:
+        return HttpResponseRedirect(reverse("index"))
+
+
+def watched(request):
+    try:
+        items = Watchlist.objects.filter(user=request.user.username)
+        temp = []
+        for x in items:
+            temp.append(x.listing_id)
+        listings = []
+        for y in temp:
+            listing = Listing.objects.get(id=y)
+            listings.append(listing)
+        return render(request, "auctions/watchlist.html", {
+            "Listings" : listings
+        })
+    except:
+        return render(request, "auctions/watchlist.html", {
+            'message' : "No items on watch list."
+        })

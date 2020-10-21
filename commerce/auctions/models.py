@@ -27,6 +27,8 @@ class Listing(models.Model):
     active = models.BooleanField(default=True)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     timeStamp = models.DateTimeField(auto_now_add=True,null=True)
+    # so error doesnt come up vscode
+    objects = models.Manager()
     
     # to display name of item when searched
     def __str__(self):
@@ -37,6 +39,8 @@ class Bids(models.Model):
     price_bid = models.DecimalField(blank=True, decimal_places=2, max_digits=12, verbose_name="Bid Price")
     timeStamp = models.DateTimeField(auto_now_add=True,null=True)
     item = models.CharField(max_length=64)
+    # so error doesnt come up vscode
+    objects = models.Manager()
 
 class Comments(models.Model):
     pass
@@ -44,3 +48,6 @@ class Comments(models.Model):
 class Watchlist(models.Model):
     user = models.CharField(max_length=64)
     listing = models.CharField(max_length=64)
+    listing_id = models.IntegerField()
+    # so error doesnt come up vscode
+    objects = models.Manager()
