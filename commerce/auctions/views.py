@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django import forms
 
-from .models import User, Listing, Bids, Watchlist
+from .models import User, Listing, Bids, Watchlist, Comments
 
 # home/main page
 def index(request):
@@ -74,8 +74,8 @@ def register(request):
 
 
 # List of category items
-List_Category = [('None','none'),('ENTERTAINMENT','Entertainment'),('ELECTRONICS', 'Electronics'),('HOME', 'Home'),('HEALTH', 'Health'),('PETS', 'Pets'),('TOYS', 'Toys'),('FASHION', 'Fashion'),('SPORTS', 'Sports'),('BABY', 'Baby'),('TRAVEL', 'Travel')]
-# form info
+List_Category = [('None','None'),('ENTERTAINMENT','Entertainment'),('ELECTRONICS', 'Electronics'),('HOME', 'Home'),('HEALTH', 'Health'),('PETS', 'Pets'),('TOYS', 'Toys'),('FASHION', 'Fashion'),('SPORTS', 'Sports'),('BABY', 'Baby'),('TRAVEL', 'Travel')]
+# new listing form info
 class NewListingForm(forms.Form):
     title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title', 'class' : 'form-control', 'autocomplete' : 'off'}))
     description = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Description', 'class' : 'form-control', 'rows' : 8}))
@@ -129,6 +129,9 @@ def clisting(request):
         })
 
 
+# new comment form
+class NewCommentForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Comment', 'class' : 'form-control', 'rows' : 6}))
 # render listing page
 def slisting(request, id):
     # getting listing data
@@ -136,6 +139,7 @@ def slisting(request, id):
         listing = Listing.objects.get(id=id)
     except:
         return HttpResponseRedirect(reverse("index"))
+    # getting watch list data to add/remove option
     try:
         temp_w = []
         watch = Watchlist.objects.filter(user=request.user.username)
@@ -148,6 +152,11 @@ def slisting(request, id):
     except:
         watched = "not"
         f"Error in getting info or not found"
+    try:
+        comments = Comments.objects.filter(listing_id=id)
+    except:
+        comments = "none"
+        "error or none found"
     # checking bids for current price
     try:
         bid_l = Bids.objects.filter(item=listing.title).order_by('price_bid')
@@ -159,6 +168,8 @@ def slisting(request, id):
         "listing" : listing,
         "bid" : bid,
         "watched" : watched,
+        "form": NewCommentForm(),
+        "comments" : comments,
         "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
     except:
@@ -167,6 +178,8 @@ def slisting(request, id):
     return render(request, "auctions/slisting.html",{
         "listing" : listing,
         "watched" : watched,
+        "form": NewCommentForm(),
+        "comments" : comments,
         "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
 
@@ -255,4 +268,36 @@ def watched(request):
     except:
         return render(request, "auctions/watchlist.html", {
             'message' : "No items on watch list."
+        })
+
+
+
+# comment function
+@login_required
+def comment(request, id):
+    if request.method == "POST":
+        # getting form data
+        form = NewCommentForm(request.POST)
+        # if data is good
+        if form.is_valid():
+            text = form.cleaned_data["text"]
+        c = Comments(user=request.user.username, text=text, listing_id=id)
+        c.save()
+        messages.info(request, f"Comment added.")
+        return redirect('SeeListing', id=id)
+    else:
+        return HttpResponseRedirect(reverse("index"))
+
+
+def category(request):
+    categories = ['None','Entertainment','Electronics','Home','Health','Pets','Toys','Fashion','Sports','Baby','Travel']
+    if request.method == "POST":
+        category = request.POST["category"]
+        return render(request, "auctions/category.html", {
+            "Listings" : Listing.objects.filter(category=category.upper()),
+            "categories" : categories
+        })
+    else:
+        return render(request, "auctions/category.html", {
+            "categories" : categories
         })

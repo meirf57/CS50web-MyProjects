@@ -43,7 +43,12 @@ class Bids(models.Model):
     objects = models.Manager()
 
 class Comments(models.Model):
-    pass
+    user = models.CharField(max_length=64) 
+    text = models.TextField()
+    time = models.DateTimeField(auto_now_add=True,null=True)
+    listing_id = models.IntegerField()
+    # so error doesnt come up vscode
+    objects = models.Manager()
 
 class Watchlist(models.Model):
     user = models.CharField(max_length=64)

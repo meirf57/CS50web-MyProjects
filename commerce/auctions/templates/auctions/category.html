@@ -1,0 +1,46 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <form action="{% url 'category' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="exampleFormControlSelect1"><h4>Category</h4></label>
+            <select class="form-control" id="exampleFormControlSelect1" name='category' onchange="this.form.submit()">
+                {% for category in categories %}
+                    <option>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    
+    {% if Listings %}
+    <div class="card-column">
+        {% for listing in Listings %}
+            <div class="card">
+                <a href="{% url 'SeeListing' listing.id %}" style='color:inherit'><div class="card-body">
+                    <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+
+                    <li style="padding-right:1em">
+                    {% if listing.image %}
+                        <img src="{{ listing.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                    {% endif %}
+                    </li>
+                    <li>
+                        <h2>{{ listing.title }}</h2>
+                        <p>{{ listing.description }}</p>
+                        <br><br>
+                        <h4>Starting Price: {{ listing.price }}</h4>
+                        <small>Price may have gone up</small>
+                    </li>
+                </div>
+                    </ul>
+                <div class="card-footer">
+                    <small class="text-muted">{{ listing.timeStamp }}</small>
+                </div></a>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endblock %}
