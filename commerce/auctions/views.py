@@ -96,7 +96,7 @@ def clisting(request):
             category = form.cleaned_data["category"]
             image = form.cleaned_data["image"]
             price = form.cleaned_data["price"]
-
+            # price not high enough
             if price <= 0.001:
                 return render(request, "auctions/clisting.html", {
                 "form": form,
@@ -108,6 +108,7 @@ def clisting(request):
                 listing = Listing(creator=request.user, title=title, description=description, price=price, image=image, category=category)
                 listing.save()
                 return HttpResponseRedirect(reverse("index"))
+            # just in case
             except IntegrityError:
                 return render(request, "auctions/clisting.html", {
                 "form": form,
@@ -139,7 +140,7 @@ def slisting(request, id):
         listing = Listing.objects.get(id=id)
     except:
         return HttpResponseRedirect(reverse("index"))
-    # getting watch list data to add/remove option
+    # getting watchlist data to add/remove option
     try:
         temp_w = []
         watch = Watchlist.objects.filter(user=request.user.username)
@@ -152,6 +153,7 @@ def slisting(request, id):
     except:
         watched = "not"
         f"Error in getting info or not found"
+    # checking if any comments on listing
     try:
         comments = Comments.objects.filter(listing_id=id)
     except:
@@ -198,7 +200,7 @@ def bid(request, id):
             return redirect('SeeListing', id=id)
         # setting bid value in case first bid
         bid = 0
-        # getting current highest bid
+        # getting current highest bid if any
         try:
             bid_l = Bids.objects.filter(item=listing.title).order_by('price_bid')
             temp = []
@@ -209,13 +211,16 @@ def bid(request, id):
             f"Error in getting info or not found"
         # checking new bid is higher than current price
         if price < float(bid_amount) and float(bid_amount) > bid:
+            # saving new bid and redirecting with message
             try:
                 bid = Bids(creator=request.user, price_bid=bid_amount, item=listing.title)
                 bid.save()
                 messages.info(request, f"Bid successful! Your Input: {bid_amount}")
                 return redirect('SeeListing', id=id)
+            # just in case
             except:
                 return HttpResponseRedirect(reverse("index"))
+        # bid not high enough redirect and display message
         else:
             messages.warning(request, f"Bid must be higher than current bid price. Your Input: {bid_amount}")
             return redirect('SeeListing', id=id)
@@ -224,15 +229,19 @@ def bid(request, id):
 # adding item to wathlist db by id of listing
 @login_required
 def watchlist(request, id):
+    # if post add to watchlist db
     if request.method == "POST":
+        # if logged in
         if request.user.username:
             listing = Listing.objects.get(id=id)
             w = Watchlist(user=request.user.username, listing=listing.title, listing_id=id)
             w.save()
             messages.info(request, f"Added to Watchlist!")
             return redirect('SeeListing', id=id)
+        # else just in case
         else:
             return HttpResponseRedirect(reverse("index"))
+    # else just in case
     else:
         return HttpResponseRedirect(reverse("index"))
 
@@ -240,6 +249,7 @@ def watchlist(request, id):
 # removing item from watchlist db
 @login_required
 def remove_watchlist(request, id):
+    # if post remove item from db
     if request.method == "POST":
         if request.user.username:
             Watchlist.objects.filter(listing_id=id).delete()
@@ -247,6 +257,7 @@ def remove_watchlist(request, id):
             return redirect('SeeListing', id=id)
         else:
             return HttpResponseRedirect(reverse("index"))
+    # else just in case
     else:
         return HttpResponseRedirect(reverse("index"))
 
@@ -285,18 +296,23 @@ def comment(request, id):
         c.save()
         messages.info(request, f"Comment added.")
         return redirect('SeeListing', id=id)
+    # else just in case
     else:
         return HttpResponseRedirect(reverse("index"))
 
 
+# category function
 def category(request):
+    # repeated list of categories (should restructure)
     categories = ['None','Entertainment','Electronics','Home','Health','Pets','Toys','Fashion','Sports','Baby','Travel']
+    # if post then display listing if any
     if request.method == "POST":
         category = request.POST["category"]
         return render(request, "auctions/category.html", {
             "Listings" : Listing.objects.filter(category=category.upper()),
             "categories" : categories
         })
+    # else select menu
     else:
         return render(request, "auctions/category.html", {
             "categories" : categories
