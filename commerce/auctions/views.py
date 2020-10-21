@@ -13,7 +13,8 @@ from .models import User, Listing, Bids, Watchlist
 # home/main page
 def index(request):
     return render(request, "auctions/index.html", {
-        "Listings" : Listing.objects.all()
+        "Listings" : Listing.objects.all(),
+        "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
 
 
@@ -157,14 +158,16 @@ def slisting(request, id):
         return render(request, "auctions/slisting.html",{
         "listing" : listing,
         "bid" : bid,
-        "watched" : watched
+        "watched" : watched,
+        "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
     except:
         f"Error in getting info or not found"
     # return data if no bids found
     return render(request, "auctions/slisting.html",{
         "listing" : listing,
-        "watched" : watched
+        "watched" : watched,
+        "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
 
 
@@ -205,6 +208,7 @@ def bid(request, id):
             return redirect('SeeListing', id=id)
 
 
+# adding item to wathlist db by id of listing
 @login_required
 def watchlist(request, id):
     if request.method == "POST":
@@ -219,6 +223,8 @@ def watchlist(request, id):
     else:
         return HttpResponseRedirect(reverse("index"))
 
+
+# removing item from watchlist db
 @login_required
 def remove_watchlist(request, id):
     if request.method == "POST":
@@ -232,6 +238,7 @@ def remove_watchlist(request, id):
         return HttpResponseRedirect(reverse("index"))
 
 
+# rendering watchlist page
 def watched(request):
     try:
         items = Watchlist.objects.filter(user=request.user.username)
