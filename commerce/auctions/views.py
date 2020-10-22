@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -10,10 +10,10 @@ from django import forms
 
 from .models import User, Listing, Bids, Watchlist, Comments
 
-# home/main page
+# home/main page display active listings
 def index(request):
     return render(request, "auctions/index.html", {
-        "Listings" : Listing.objects.all(),
+        "Listings" : Listing.objects.exclude(active=False),
         "items" : len(Watchlist.objects.filter(user=request.user.username))
     })
 
@@ -140,6 +140,16 @@ def slisting(request, id):
         listing = Listing.objects.get(id=id)
     except:
         return HttpResponseRedirect(reverse("index"))
+    # check if user is owner for close bid option
+    if request.user == listing.creator:
+        owner = 'owner'
+    else:
+        owner = 'not'
+    # if user is winner display that he won
+    if request.user == listing.winner:
+        winner = 'winner'
+    else:
+        winner = 'not'
     # getting watchlist data to add/remove option
     try:
         temp_w = []
@@ -170,6 +180,8 @@ def slisting(request, id):
         "listing" : listing,
         "bid" : bid,
         "watched" : watched,
+        "owner" : owner,
+        "winner" : winner,
         "form": NewCommentForm(),
         "comments" : comments,
         "items" : len(Watchlist.objects.filter(user=request.user.username))
@@ -180,6 +192,8 @@ def slisting(request, id):
     return render(request, "auctions/slisting.html",{
         "listing" : listing,
         "watched" : watched,
+        "owner" : owner,
+        "winner" : winner,
         "form": NewCommentForm(),
         "comments" : comments,
         "items" : len(Watchlist.objects.filter(user=request.user.username))
@@ -249,10 +263,10 @@ def watchlist(request, id):
 # removing item from watchlist db
 @login_required
 def remove_watchlist(request, id):
-    # if post remove item from db
+    # if post remove item from db that matches user
     if request.method == "POST":
         if request.user.username:
-            Watchlist.objects.filter(listing_id=id).delete()
+            Watchlist.objects.filter(Q(listing_id=id),Q(user=request.user.username)).delete()
             messages.info(request, f"Removed from Watchlist!")
             return redirect('SeeListing', id=id)
         else:
@@ -264,6 +278,7 @@ def remove_watchlist(request, id):
 
 # rendering watchlist page
 def watched(request):
+    # get active listings from db
     try:
         items = Watchlist.objects.filter(user=request.user.username)
         temp = []
@@ -271,11 +286,15 @@ def watched(request):
             temp.append(x.listing_id)
         listings = []
         for y in temp:
-            listing = Listing.objects.get(id=y)
-            listings.append(listing)
+            try:
+                listing = Listing.objects.get(Q(id=y),Q(active=True))
+            except:
+                "listing not active"
+        listings.append(listing)
         return render(request, "auctions/watchlist.html", {
             "Listings" : listings
         })
+    # if no items on watchlist
     except:
         return render(request, "auctions/watchlist.html", {
             'message' : "No items on watch list."
@@ -309,7 +328,7 @@ def category(request):
     if request.method == "POST":
         category = request.POST["category"]
         return render(request, "auctions/category.html", {
-            "Listings" : Listing.objects.filter(category=category.upper()),
+            "Listings" : Listing.objects.filter(Q(category=category.upper()),Q(active=True)),
             "categories" : categories
         })
     # else select menu
@@ -317,3 +336,20 @@ def category(request):
         return render(request, "auctions/category.html", {
             "categories" : categories
         })
+
+
+# close bid function
+@login_required
+def closeBid(request, id):
+    # should find a way to merge db's
+    listing = Listing.objects.get(id=id)
+    bid_l = Bids.objects.filter(item=listing.title).order_by('price_bid')
+    temp = []
+    for x in bid_l: 
+        temp.append(x.price_bid)
+    bid = max(temp)
+    win_bid = Bids.objects.get(Q(item=listing.title),Q(price_bid=bid))
+    winner = User.objects.get(username=win_bid.creator)
+    Listing.objects.filter(id=id).update(active=False, winner=winner)
+    Watchlist.objects.filter(listing_id=id).delete()
+    return redirect('SeeListing', id=id)

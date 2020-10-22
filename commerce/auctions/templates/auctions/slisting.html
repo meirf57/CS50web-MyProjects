@@ -28,17 +28,25 @@
                         {% endif %}
                         
                         <br>
-                        {% if user.is_authenticated %}
-                        <form  action="{% url 'bid' listing.id %}" method="post">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <input autofocus class="form-control" type="number" step=".01" name="bid" placeholder="Bid">
-                            </div>
-                            <button class="btn btn-primary" type="submit">Place Bid</button>
-                        </form>
-                        <br>
-                        {% else %}
-                        <small>To bid please log in.</small>
+                        {% if listing.active %}
+                            {% if user.is_authenticated %}
+                            <form  action="{% url 'bid' listing.id %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <input autofocus class="form-control" type="number" step=".01" name="bid" placeholder="Bid">
+                                </div>
+                                <button class="btn btn-primary" type="submit">Place Bid</button>
+                            </form>
+                            <br>
+                            {% else %}
+                            <small>To bid please log in.</small>
+                            {% endif %}
+                        {% elif listing.winner %}
+                            {% if winner == "winner" %}
+                                <div class="alert alert-success" role="alert">
+                                    Congratulations {{ listing.winner }} you won!!
+                                </div>
+                            {% endif %}
                         {% endif %}
                         
                         <h5>Details:</h5>
@@ -48,17 +56,25 @@
                             {% endif %}
                             <li>Listed By: {{ listing.creator }}</li>
                         </ul>
-                        {% if user.is_authenticated %}
-                            {% if watched == 'on list' %}
-                                <form  action="{% url 'remove_watchlist' listing.id %}" method="post">
-                                    {% csrf_token %}
-                                    <button class="btn btn-outline-danger" type="submit">Remove From Watchlist</button>
-                                </form>
-                            {% elif watched != "on list" %}
-                                <form  action="{% url 'watchlist' listing.id %}" method="post">
-                                    {% csrf_token %}
-                                    <button class="btn btn-outline-success" type="submit">Add to Watchlist</button>
-                                </form>
+                        {% if listing.active %}
+                            {% if user.is_authenticated %}
+                                {% if watched == 'on list' %}
+                                    <form  action="{% url 'remove_watchlist' listing.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-danger" type="submit">Remove From Watchlist</button>
+                                    </form>
+                                {% elif watched != "on list" %}
+                                    <form  action="{% url 'watchlist' listing.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-success" type="submit">Add to Watchlist</button>
+                                    </form>
+                                {% endif %}
+                                {% if owner == "owner" %}
+                                    <form  action="{% url 'closeBid' listing.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="btn btn-outline-info" type="submit" style="float:right">Close Bid</button>
+                                    </form>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </div>
