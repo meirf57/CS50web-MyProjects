@@ -45,19 +45,22 @@ function load_mailbox(mailbox) {
 
 function email_row(email) {
   const item = document.createElement('div');
-  item.setAttribute('class', 'container');
+  item.setAttribute('class', 'card');
   item.setAttribute('id', `row-${email.id}`);
   var color;
-  if (!email.read) {
+  if (email.read) {
     color = 'white';
   } else {
     color = '#E8E8E8';
   }
   item.style.backgroundColor = color;
-  item.innerHTML = `<div class="card-body" id="item-${email.id}">
-  Subject: ${email.subject} | Recipients: ${email.recipients} | Time: ${email.timestamp}
-  <br>
-  ${email.body.slice(0,100)}</div><br>`;
+  item.innerHTML = `<div class="card-body" id="item-${email.id} style="color:${color};">
+  Subject: ${email.subject}<br>
+  Recipients: ${email.recipients}<br>
+  ${email.body.slice(0,100)}</div>
+  <div class="card-footer">
+  <small class="text-muted">Time: ${email.timestamp}</small>
+  </div>`;
   item.addEventListener('click', () => show_email(email.id));
   document.querySelector('#emails-view').appendChild(item);
 }
@@ -122,6 +125,7 @@ function email_read(id) {
 }
 
 function email_archive(id, state) {
+  load_mailbox('inbox');
   fetch(`/emails/${id}`, {
     method : "PUT",
     body : JSON.stringify({
