@@ -67,6 +67,7 @@ function email_row(email) {
   } else {
     color = '#d3d3d3';
   }
+  // not sure why this yes and in innerHTML no
   item.style.backgroundColor = color;
 
   // set cards inner html with appropiate data
@@ -97,7 +98,7 @@ function show_email(id) {
     // Clear viewBlock 
     document.querySelector('#emails-view').innerHTML = '';
 
-    // Craete view of email
+    // Create view of email
     var item = document.createElement('div');
     item.className = 'card';
     item.innerHTML = `<div class="card-body" style="white-space:pre-wrap">
