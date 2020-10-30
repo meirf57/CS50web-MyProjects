@@ -126,7 +126,7 @@ function show_email(id) {
     archive.className = "btn btn-outline-success";
     archive.setAttribute('id', 'archive-btn');
     archive.addEventListener('click', () => {
-      email_archive(id, email.archived);
+      email_archive(id, email.archived), load_mailbox('inbox');
 
       // Set inner button text
       if (archive.innerText != "Archive") {
