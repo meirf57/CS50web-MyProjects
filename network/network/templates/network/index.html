@@ -1,5 +1,44 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <h2>All Posts</h2>
+        <div class="card-column" style="padding: 1em;">
+        {% if user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    <form action="{% url 'newpost' %}" method="post">
+                        {% csrf_token %}
+                        {% for item in form %} 
+                        <div class="form-group">{{ item }}</div>
+                        {% endfor %}
+                        <button class="btn btn-primary" type="submit">Add Post</button>
+                    </form>
+                </div>
+            </div>
+            <br>
+        {% endif %}
+        {% for post in posts %}
+            <div class="card">
+                <div class="card-body">
+                <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+                    {% if post.image %} 
+                        <li style="padding-right:1em">   
+                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                            <br>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <h4>{{ post.creator }}</h4>
+                        <p>Edit<br>
+                        {{ post.text }}<br>
+                        {{ post.timeStamp }}<br>
+                        {{ post.like }}<br>
+                        Comment</p>
+                    </li>
+                </ul>
+                </div>
+            </div>
+            <br>
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -1,0 +1,34 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h3>Profile Page</h3>
+    {% if message %}
+    <div class="alert alert-info" role="alert">
+        {{message}} 
+    </div>
+    {% endif %}
+    {% if posts %}
+    <div class="card-column">
+        {% for post in posts %}
+            <div class="card">
+                <div class="card-body">
+                <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+                    <li style="padding-right:1em">
+                        {% if post.image %}    
+                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                            <br>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <p>{{ post.text }}</p>
+                    </li>
+                </ul>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">{{ post.timeStamp }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
