@@ -16,8 +16,9 @@ class NewPostForm(forms.Form):
 
 def index(request):
     form = NewPostForm(request.POST)
+    posts = NewPost.objects.all()
     return render(request, "network/index.html", {
-        "posts" : NewPost.objects.all(),
+        "posts" : posts.order_by("-timeStamp").all(),
         "form": form
     })
 

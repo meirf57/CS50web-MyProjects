@@ -29,11 +29,11 @@
                     {% endif %}
                     <li>
                         <h4>{{ post.creator }}</h4>
-                        <p>Edit<br>
+                        Edit<br>
                         {{ post.text }}<br>
-                        {{ post.timeStamp }}<br>
+                        <a class="text-muted">{{ post.timeStamp }}<br>
                         <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{{ post.like }}<br>
-                        Comment</p>
+                        Comment</a>
                     </li>
                 </ul>
                 </div>

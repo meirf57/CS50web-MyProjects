@@ -7,9 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     for (var i = 0; i <= buttonsCount; i += 1) {
         buttons[i].onclick = function(e) {
             toggle(this.id);
+            // post id = "like- {number}" so minus first 5 char is id
         };
     }
-    
+
     function toggle(id){
         const button = document.querySelector(`#${id}`);
         const like = button.textContent;
