@@ -23,7 +23,7 @@
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
                     {% if post.image %} 
                         <li style="padding-right:1em">   
-                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
                             <br>
                         </li>
                     {% endif %}
@@ -32,7 +32,7 @@
                         <p>Edit<br>
                         {{ post.text }}<br>
                         {{ post.timeStamp }}<br>
-                        <button class="btn btn-outline-light">❤🤍</button>{{ post.like }}<br>
+                        <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{{ post.like }}<br>
                         Comment</p>
                     </li>
                 </ul>
