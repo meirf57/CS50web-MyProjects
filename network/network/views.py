@@ -2,11 +2,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.urls import reverse
 from django import forms
 
-from .models import User, NewPost
+from .models import User, NewPost, Follow
 
 
 
@@ -104,19 +105,57 @@ def newpost(request):
         })
 
 
-@login_required
+
 def profile(request, name):
     try:
         profile = User.objects.get(username=name)
+        message = []
         try:
             posts = NewPost.objects.filter(creator=profile)
+            #message.append(f"{profile}, hello!")
         except:
             posts = "not found"
         return render(request, "network/profile.html", {
-            "message" : f"{profile}, hello!",
-            "posts" : posts
+            #"messages" : message,
+            "posts" : posts,
+            "name" : name
         })
     except:
+        message.append(f"{name}, not found!")
         return render(request, "network/profile.html", {
-            "message" : f"{name}, not found!"
+            "messages" : message,
+            "name" : name
         })
+
+
+@login_required
+def follow(request, name):
+    # if post add to watchlist db
+    if request.method == "POST":
+        # if logged in
+        if request.user.username:
+            follow = User.objects.get(username=name)
+            f = Follow(profile=request.user.username, following=follow)
+            f.save()
+            messages.info(request, f"Now Following!")
+            return redirect('profile', name=name)
+        # else just in case
+        else:
+            return HttpResponseRedirect(reverse("index"))
+    # else just in case
+    else:
+        return HttpResponseRedirect(reverse("index"))
+
+@login_required
+def unfollow(request, name):
+    # if post remove item from db that matches user
+    if request.method == "POST":
+        if request.user.username:
+            Follow.objects.filter(following=name).delete()
+            messages.info(request, f"Removed from Following!")
+            return redirect('profile', name=name)
+        else:
+            return HttpResponseRedirect(reverse("index"))
+    # else just in case
+    else:
+        return HttpResponseRedirect(reverse("index"))

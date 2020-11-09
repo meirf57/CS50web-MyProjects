@@ -2,32 +2,52 @@
 
 {% block body %}
     <h3>Profile Page</h3>
-    {% if message %}
+    {% if messages %}
+    {% for message in messages %}
     <div class="alert alert-info" role="alert">
-        {{message}} 
+        {{ message }}
     </div>
+    {% endfor %}
     {% endif %}
+
+    {% if user.is_authenticated %}
+        {% if user.username != name %}
+            <form  action="{% url 'follow' name %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-outline-success" id="follow" type="submit">Follow</button>
+            </form>
+            <form  action="{% url 'unfollow' name %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger" id="follow" type="submit">UnFollow</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+
     {% if posts %}
-    <div class="card-column">
+    <div class="card-column" style="padding: 1em;">
         {% for post in posts %}
             <div class="card">
                 <div class="card-body">
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
-                    <li style="padding-right:1em">
-                        {% if post.image %}    
-                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ listing.title }}" height="200" >
+                    {% if post.image %} 
+                        <li style="padding-right:1em">   
+                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
                             <br>
-                        {% endif %}
-                    </li>
+                        </li>
+                    {% endif %}
                     <li>
-                        <p>{{ post.text }}</p>
+                        <a href="{% url 'profile' post.creator %}" style="color:inherit"><h4>{{ post.creator }}</h4></a>
+                        Edit<br>
+                        {{ post.text }}<br>
+                        <a class="text-muted">{{ post.timeStamp }}<br>
+                        <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{{ post.like }}<br>
+                        Comment</a>
                     </li>
                 </ul>
                 </div>
-                <div class="card-footer">
-                    <small class="text-muted">{{ post.timeStamp }}</small>
-                </div>
             </div>
+            <br>
         {% endfor %}
     </div>
     {% endif %}

@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggle(id){
         const button = document.querySelector(`#${id}`);
-        const like = button.textContent;
-        if (like==whiteheart){
+        const text = button.textContent;
+        if (text==whiteheart){
             button.textContent=redheart;
         } else {
             button.textContent=whiteheart;

@@ -14,3 +14,10 @@ class NewPost(models.Model):
     timeStamp = models.DateTimeField(auto_now_add=True,null=True)
     # for objects error vscode
     objects = models.Manager()
+
+
+class Follow(models.Model):
+    profile = models.CharField(max_length=64)
+    following = models.CharField(max_length=64)
+    # for objects error vscode
+    objects = models.Manager()

@@ -28,7 +28,7 @@
                         </li>
                     {% endif %}
                     <li>
-                        <h4>{{ post.creator }}</h4>
+                        <a href="{% url 'profile' post.creator %}" style="color:inherit"><h4>{{ post.creator }}</h4></a>
                         Edit<br>
                         {{ post.text }}<br>
                         <a class="text-muted">{{ post.timeStamp }}<br>
