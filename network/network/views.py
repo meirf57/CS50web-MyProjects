@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db.models import Q, Count
 from django.urls import reverse
 from django import forms
 
@@ -110,15 +111,26 @@ def profile(request, name):
     try:
         profile = User.objects.get(username=name)
         message = []
+        # if logged in
+        if request.user.username:
+            try:
+                flw = Follow.objects.get(following=name)
+                if flw.profile == request.user.username:
+                    f = 'yes'
+                else:
+                    f = 'other'
+            except:
+                f = ''
         try:
             posts = NewPost.objects.filter(creator=profile)
-            #message.append(f"{profile}, hello!")
         except:
             posts = "not found"
         return render(request, "network/profile.html", {
-            #"messages" : message,
             "posts" : posts,
-            "name" : name
+            "name" : name,
+            "follow" : f,
+            "following" : 5,
+            "followers" : 0
         })
     except:
         message.append(f"{name}, not found!")
@@ -151,7 +163,7 @@ def unfollow(request, name):
     # if post remove item from db that matches user
     if request.method == "POST":
         if request.user.username:
-            Follow.objects.filter(following=name).delete()
+            Follow.objects.filter(Q(profile=request.user.username),Q(following=name)).delete()
             messages.info(request, f"Removed from Following!")
             return redirect('profile', name=name)
         else:

@@ -10,16 +10,22 @@
     {% endfor %}
     {% endif %}
 
+    <h5><span class="badge badge-pill badge-primary">Following:  {{following}}</span>
+    <span class="badge badge-pill badge-primary">Followers:  {{followers}}</span></span></h4>
+    
     {% if user.is_authenticated %}
         {% if user.username != name %}
+            {% if follow != "yes" %}
             <form  action="{% url 'follow' name %}" method="post">
                 {% csrf_token %}
-                <button class="btn btn-outline-success" id="follow" type="submit">Follow</button>
+                <button class="btn btn-outline-success" type="submit">Follow</button>
             </form>
+            {% else %}
             <form  action="{% url 'unfollow' name %}" method="post">
                 {% csrf_token %}
-                <button class="btn btn-outline-danger" id="follow" type="submit">UnFollow</button>
+                <button class="btn btn-outline-danger" type="submit">UnFollow</button>
             </form>
+            {% endif %}
         {% endif %}
     {% endif %}
 
