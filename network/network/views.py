@@ -11,11 +11,13 @@ from django import forms
 from .models import User, NewPost, Follow
 
 
-
+# form for post, image just a thought
 class NewPostForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Post', 'class' : 'form-control', 'rows' : 4}))
     #image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
 
+
+# render index: all posts, with new post form
 def index(request):
     form = NewPostForm(request.POST)
     posts = NewPost.objects.all()
@@ -25,24 +27,29 @@ def index(request):
     })
 
 
+# render following
 def following(request):
     flw = Follow.objects.filter(following=request.user)
+    # if not following anyone
     if not flw:
         return render(request, "network/following.html", {
         "message" : "Not Following anyone yet!"
         })
+    # empty list and getting data
     names = []
     posts = NewPost.objects.order_by("-timeStamp").all()
+    # list of following
     for p in posts:
         for f in flw:
             if f.profile.username == p.creator:
                 names.append(p)
-    #for x in posts:
+    # pass list of posts
     return render(request, "network/following.html", {
         "posts" : names
     })
 
 
+# login
 def login_view(request):
     if request.method == "POST":
 
@@ -62,12 +69,12 @@ def login_view(request):
     else:
         return render(request, "network/login.html")
 
-
+# logout
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
-
+# register
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -94,7 +101,8 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-    
+
+# adding new post 
 @login_required
 def newpost(request):
     if request.method == "POST":
@@ -103,6 +111,7 @@ def newpost(request):
         if form.is_valid():
             text = form.cleaned_data["text"]
             #image = form.cleaned_data["image"]
+            # add post to db
             try:
                 newp = NewPost(creator=request.user.username, text=text, like=0)
                 newp.save()
@@ -124,30 +133,36 @@ def newpost(request):
         })
 
 
-
+# profile page
 def profile(request, name):
+    # get data
     try:
         profile = User.objects.get(username=name)
         message = []
         # if logged in
         if request.user.username:
+            # check if user follows this profile
             try:
                 flw = Follow.objects.filter(profile=profile, following=request.user)
                 f = 'yes'
                 if not flw:
                     f = ''
             except:
-                f = ''  
+                f = '' 
+        # not logged in 
         else:
-            f = ''       
+            f = ''
+        # get data to display, posts/following/followers      
         try:
             posts = NewPost.objects.filter(creator=profile)
             flw = Follow.objects.filter(profile=profile)
             followers = len(flw)
             flw = Follow.objects.filter(following=profile)
             following = len(flw)
+        # no data
         except:
-            posts = "not found"
+            "not found"
+        # render page with data
         return render(request, "network/profile.html", {
             "posts" : posts,
             "name" : name,
@@ -155,6 +170,7 @@ def profile(request, name):
             "following" : following,
             "followers" : followers
         })
+    # no profile fo rthis user
     except:
         message.append(f"{name}, not found!")
         return render(request, "network/profile.html", {
@@ -163,6 +179,7 @@ def profile(request, name):
         })
 
 
+# follow this profile
 @login_required
 def follow(request, name):
     # if post add to watchlist db
@@ -181,6 +198,7 @@ def follow(request, name):
     else:
         return HttpResponseRedirect(reverse("index"))
 
+# unfollow this profile
 @login_required
 def unfollow(request, name):
     # if post remove item from db that matches user
