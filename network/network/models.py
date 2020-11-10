@@ -17,7 +17,10 @@ class NewPost(models.Model):
 
 
 class Follow(models.Model):
-    profile = models.CharField(max_length=64)
-    following = models.CharField(max_length=64)
+    profile = models.ForeignKey(User, on_delete=models.CASCADE,related_name="followed")
+    following = models.ForeignKey(User, on_delete=models.CASCADE,related_name="following")
     # for objects error vscode
     objects = models.Manager()
+
+    def __str__(self):
+        return f"{self.id}: {self.profile} followed by {self.following}"

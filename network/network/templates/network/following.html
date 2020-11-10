@@ -1,22 +1,15 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h2>All Posts</h2>
-        <div class="card-column" style="padding: 1em;">
-        {% if user.is_authenticated %}
-            <div class="card">
-                <div class="card-body">
-                    <form action="{% url 'newpost' %}" method="post">
-                        {% csrf_token %}
-                        {% for item in form %} 
-                        <div class="form-group">{{ item }}</div>
-                        {% endfor %}
-                        <button class="btn btn-primary" type="submit">Add Post</button>
-                    </form>
-                </div>
-            </div>
-            <br>
-        {% endif %}
+    <h3>Following</h3>
+    {% if message %}
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if posts %}
+    <div class="card-column" style="padding: 1em;">
         {% for post in posts %}
             <div class="card">
                 <div class="card-body">
@@ -32,7 +25,7 @@
                         Edit<br>
                         {{ post.text }}<br>
                         <a class="text-muted">{{ post.timeStamp }}<br>
-                        {% if user.is_authenticated %}<button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{% else %}Likes: {% endif %} {{ post.like }}<br>
+                        <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{{ post.like }}<br>
                         Comment</a>
                     </li>
                 </ul>
@@ -41,4 +34,5 @@
             <br>
         {% endfor %}
     </div>
+    {% endif %}
 {% endblock %}

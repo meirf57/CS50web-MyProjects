@@ -25,6 +25,24 @@ def index(request):
     })
 
 
+def following(request):
+    flw = Follow.objects.filter(following=request.user)
+    if not flw:
+        return render(request, "network/following.html", {
+        "message" : "Not Following anyone yet!"
+        })
+    names = []
+    posts = NewPost.objects.order_by("-timeStamp").all()
+    for p in posts:
+        for f in flw:
+            if f.profile.username == p.creator:
+                names.append(p)
+    #for x in posts:
+    return render(request, "network/following.html", {
+        "posts" : names
+    })
+
+
 def login_view(request):
     if request.method == "POST":
 
@@ -114,23 +132,26 @@ def profile(request, name):
         # if logged in
         if request.user.username:
             try:
-                flw = Follow.objects.get(following=name)
-                if flw.profile == request.user.username:
-                    f = 'yes'
-                else:
-                    f = 'other'
+                flw = Follow.objects.filter(profile=profile, following=request.user)
+                f = 'yes'
+                if not flw:
+                    f = ''
             except:
-                f = ''
+                f = ''            
         try:
             posts = NewPost.objects.filter(creator=profile)
+            flw = Follow.objects.filter(profile=profile)
+            followers = len(flw)
+            flw = Follow.objects.filter(following=profile)
+            following = len(flw)
         except:
             posts = "not found"
         return render(request, "network/profile.html", {
             "posts" : posts,
             "name" : name,
             "follow" : f,
-            "following" : 5,
-            "followers" : 0
+            "following" : following,
+            "followers" : followers
         })
     except:
         message.append(f"{name}, not found!")
@@ -147,7 +168,7 @@ def follow(request, name):
         # if logged in
         if request.user.username:
             follow = User.objects.get(username=name)
-            f = Follow(profile=request.user.username, following=follow)
+            f = Follow(profile=follow, following=request.user)
             f.save()
             messages.info(request, f"Now Following!")
             return redirect('profile', name=name)
@@ -163,7 +184,7 @@ def unfollow(request, name):
     # if post remove item from db that matches user
     if request.method == "POST":
         if request.user.username:
-            Follow.objects.filter(Q(profile=request.user.username),Q(following=name)).delete()
+            Follow.objects.filter(Q(profile=User.objects.get(username=name)),Q(following=request.user)).delete()
             messages.info(request, f"Removed from Following!")
             return redirect('profile', name=name)
         else:
