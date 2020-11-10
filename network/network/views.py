@@ -137,7 +137,9 @@ def profile(request, name):
                 if not flw:
                     f = ''
             except:
-                f = ''            
+                f = ''  
+        else:
+            f = ''       
         try:
             posts = NewPost.objects.filter(creator=profile)
             flw = Follow.objects.filter(profile=profile)

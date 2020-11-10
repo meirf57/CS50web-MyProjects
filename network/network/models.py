@@ -23,4 +23,4 @@ class Follow(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.id}: {self.profile} followed by {self.following}"
+        return f"{self.profile} followed by {self.following}"
