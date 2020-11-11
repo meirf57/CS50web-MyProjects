@@ -1,44 +1,55 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h2>All Posts</h2>
+    {% if title %}
+        <h2>{{title}}</h2>
+    {% endif %}
+    {% if message %}
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
         <div class="card-column" style="padding: 1em;">
         {% if user.is_authenticated %}
-            <div class="card">
-                <div class="card-body">
-                    <form action="{% url 'newpost' %}" method="post">
-                        {% csrf_token %}
-                        {% for item in form %} 
-                        <div class="form-group">{{ item }}</div>
-                        {% endfor %}
-                        <button class="btn btn-primary" type="submit">Add Post</button>
-                    </form>
+            {% if title == "All Posts" %}
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{% url 'newpost' %}" method="post">
+                            {% csrf_token %}
+                            {% for item in form %} 
+                            <div class="form-group">{{ item }}</div>
+                            {% endfor %}
+                            <button class="btn btn-primary" type="submit">Add Post</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            <br>
+                <br>
+            {% endif %}
         {% endif %}
-        {% for post in posts %}
-            <div class="card">
-                <div class="card-body">
-                <ul class="list-group list-group-horizontal" style="list-style-type: none;">
-                    {% if post.image %} 
-                        <li style="padding-right:1em">   
-                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
-                            <br>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card">
+                    <div class="card-body">
+                    <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+                        {% if post.image %} 
+                            <li style="padding-right:1em">   
+                                <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
+                                <br>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'profile' post.creator %}" style="color:inherit"><h4>{{ post.creator }}</h4></a>
+                            Edit<br>
+                            {{ post.text }}<br>
+                            <a class="text-muted">{{ post.timeStamp }}<br>
+                            {% if user.is_authenticated %}<button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{% else %}Likes: {% endif %} {{ post.like }}<br>
+                            Comment</a>
                         </li>
-                    {% endif %}
-                    <li>
-                        <a href="{% url 'profile' post.creator %}" style="color:inherit"><h4>{{ post.creator }}</h4></a>
-                        Edit<br>
-                        {{ post.text }}<br>
-                        <a class="text-muted">{{ post.timeStamp }}<br>
-                        {% if user.is_authenticated %}<button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{% else %}Likes: {% endif %} {{ post.like }}<br>
-                        Comment</a>
-                    </li>
-                </ul>
+                    </ul>
+                    </div>
                 </div>
-            </div>
-            <br>
-        {% endfor %}
+                <br>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}

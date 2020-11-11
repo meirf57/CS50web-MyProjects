@@ -22,6 +22,7 @@ def index(request):
     form = NewPostForm(request.POST)
     posts = NewPost.objects.all()
     return render(request, "network/index.html", {
+        "title" : "All Posts",
         "posts" : posts.order_by("-timeStamp").all(),
         "form": form
     })
@@ -32,7 +33,8 @@ def following(request):
     flw = Follow.objects.filter(following=request.user)
     # if not following anyone
     if not flw:
-        return render(request, "network/following.html", {
+        return render(request, "network/index.html", {
+        "title" : "Following",
         "message" : "Not Following anyone yet!"
         })
     # empty list and getting data
@@ -44,7 +46,8 @@ def following(request):
             if f.profile.username == p.creator:
                 names.append(p)
     # pass list of posts
-    return render(request, "network/following.html", {
+    return render(request, "network/index.html", {
+        "title" : "Following",
         "posts" : names
     })
 
