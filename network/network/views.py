@@ -232,20 +232,23 @@ def unfollow(request, name):
     else:
         return HttpResponseRedirect(reverse("index"))
 
+
+# update likes in db from js function
 @csrf_exempt
 @login_required
 def like(request):
     if request.method == "PUT":
-
         data = json.loads(request.body)
+        # if data received
         if data.get("id") is not None:
             post_id = data["id"]
+            # get id of post
             post_id = post_id[5:]
+        # positive/negative
         if data.get("num") is not None:
             num = data["num"]
 
-        print(f"num = {num}")
-        print(f"post_id = {post_id}")
+        # update and return data to finish js function
         try:
             post = NewPost.objects.get(id=int(post_id))
             if num == "negative":
@@ -255,6 +258,7 @@ def like(request):
             NewPost.objects.filter(id=post_id).update(like=likes)
             print(f'numLike-{post_id}')
             return JsonResponse({'like_id' : f'numLike-{post_id}', 'like_count' : likes, "status" : 201})
+        # return if error
         except:
             print("helloworld")
             return JsonResponse({'error' : "Post not Found", "status" : 404})

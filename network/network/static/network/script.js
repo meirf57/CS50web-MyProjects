@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // variables for hearts
     const whiteheart = '🤍'; 
     const redheart = '❤';
 
+    // getting button data
     var buttons = document.getElementsByTagName("button");
     var buttonsCount = buttons.length;
     for (var i = 0; i <= buttonsCount; i += 1) {
@@ -10,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    // toggle between hearts, and call like function to change likes
     function toggle(id){
         const button = document.querySelector(`#${id}`);
         const text = button.textContent;
@@ -25,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 })
 
+
+// add or remove likes
 function like(id, num) {
     fetch("/like/", {
         method : "PUT",
@@ -36,8 +41,7 @@ function like(id, num) {
     .then((res) => res.json())
     .then((res) => { 
         if (res.status == 201) {
-            console.log(`like_count = ${res.like_count}`);
-            console.log(`like_id = ${res.like_id}`);
+            // update number of likes displayed
             changenum(id, res.like_id, res.like_count);            
         }
     })
@@ -46,6 +50,8 @@ function like(id, num) {
     });
 }
 
+
+// remove old- make and add new like amount after button 
 function changenum(idbtn, idtxt, num) {
     var element = document.getElementById(idtxt);
     element.parentNode.removeChild(element);
@@ -56,6 +62,8 @@ function changenum(idbtn, idtxt, num) {
     insertAfter(div, item);
 }
 
+
+// insert new element after other element
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
