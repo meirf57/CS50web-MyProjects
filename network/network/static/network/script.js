@@ -72,9 +72,7 @@ function insertAfter(referenceNode, newNode) {
     var lText = link.textContent;
     
     // if edit was clicked
-    if (lText=="Edit"){
-
-        console.log(`yes id = ${id}`);
+    if (lText=="Edit") {
 
         // save text and remove element
         var element = document.getElementById(`post-${id}`);

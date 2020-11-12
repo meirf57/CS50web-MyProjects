@@ -43,9 +43,11 @@
                         </li>
                     {% endif %}
                     <li>
-                        <a href="{% url 'profile' post.creator %}" style="color:inherit"><h4>{{ post.creator }}</h4></a>
-                        Edit<br>
-                        {{ post.text }}<br>
+                        <a href="{% url 'profile' post.creator %}" style="color:inherit" id="creator-{{post.id}}"><h4>{{ post.creator }}</h4></a>
+                        <strong id="post-{{post.id}}">{{ post.text }}</strong>
+                        {% if request.user.username == post.creator %}
+                            <a href="javascript:check_edit({{post.id}})" id="edit-{{post.id}}" style="display: block;">Edit</a>
+                        {% endif %}
                         <a class="text-muted">{{ post.timeStamp }}<br>
                         {% if user.is_authenticated %}
                             {% if not request.user in post.liked.all %}
