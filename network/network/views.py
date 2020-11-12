@@ -268,3 +268,25 @@ def like(request):
         except:
             return JsonResponse({'error' : "Post not Found", "status" : 404})
     return JsonResponse({}, status=400)
+
+
+@csrf_exempt
+@login_required
+def editPost(request):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        # if data received
+        if data.get("id") is not None:
+            post_id = data["id"]
+        if data.get("editT") is not None:
+            text = data["editT"]
+        print(f"id of post is: {post_id}")
+        print(f"text is: {text}")
+        # update and return data to finish js function
+        try:
+            NewPost.objects.filter(id=post_id).update(text=text)
+            return JsonResponse({'post_id' : post_id, 'text': text, "status" : 201})
+        # return if error
+        except:
+            return JsonResponse({'error' : "Post not Found", "status" : 404})
+    return JsonResponse({}, status=400)

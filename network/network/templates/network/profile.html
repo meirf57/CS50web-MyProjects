@@ -3,11 +3,11 @@
 {% block body %}
     <h3>Profile Page</h3>
     {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-info" role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
+        {% for message in messages %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
     {% endif %}
 
     <h5><span class="badge badge-pill badge-primary">Following:  {{following}}</span>
