@@ -47,7 +47,16 @@
                         Edit<br>
                         {{ post.text }}<br>
                         <a class="text-muted">{{ post.timeStamp }}<br>
-                        <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{{ post.like }}<br>
+                        {% if user.is_authenticated %}
+                            {% if not request.user in post.liked.all %}
+                                <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>
+                            {% else %}
+                                <button class="btn btn-outline-light" id="like-{{post.id}}">❤</button>
+                            {% endif %}
+                        {% else %}
+                            Likes: 
+                        {% endif %}
+                        <i id="numLike-{{post.id}}">{{ post.like }}</i><br>
                         Comment</a>
                     </li>
                 </ul>

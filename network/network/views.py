@@ -253,13 +253,18 @@ def like(request):
             post = NewPost.objects.get(id=int(post_id))
             if num == "negative":
                 likes = post.like - 1
+                # remove user to liked
+                post.liked.remove(request.user)
             else:
                 likes = post.like + 1
+                # add user to liked
+                post.liked.add(request.user)
+            # save users adde and then update
+            post.save()
             NewPost.objects.filter(id=post_id).update(like=likes)
             print(f'numLike-{post_id}')
             return JsonResponse({'like_id' : f'numLike-{post_id}', 'like_count' : likes, "status" : 201})
         # return if error
         except:
-            print("helloworld")
             return JsonResponse({'error' : "Post not Found", "status" : 404})
     return JsonResponse({}, status=400)
