@@ -92,7 +92,7 @@ function check_edit(id) {
         var form = document.createElement("div");
         form.setAttribute("id", `form-${id}`);
         form.innerHTML = `<form onsubmit="return false"><textarea class="form-control" id="edit-${id}">${post_text}</textarea>
-        <input type="submit" onclick="edit_txt(${id});" class="btn btn-primary"/></form>`;
+        <input type="submit" onclick="edit_txt(${id});" class="btn btn-primary" value="Save."/></form>`;
         
         //hiding edit link
         link.textContent = '';
