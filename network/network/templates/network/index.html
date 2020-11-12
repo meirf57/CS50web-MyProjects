@@ -27,7 +27,8 @@
             {% endif %}
         {% endif %}
         {% if posts %}
-            {% for post in posts %}
+
+            {% for post in page_obj %}
                 <div class="card">
                     <div class="card-body">
                     <ul class="list-group list-group-horizontal" style="list-style-type: none;">
@@ -42,7 +43,9 @@
                             Edit<br>
                             {{ post.text }}<br>
                             <a class="text-muted">{{ post.timeStamp }}<br>
-                            {% if user.is_authenticated %}<button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>{% else %}Likes: {% endif %} {{ post.like }}<br>
+                            {% if user.is_authenticated %}<button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>
+                            {% else %}Likes: 
+                            {% endif %} <i id="numLike-{{post.id}}">{{ post.like }}</i><br>
                             Comment</a>
                         </li>
                     </ul>
@@ -50,6 +53,23 @@
                 </div>
                 <br>
             {% endfor %}
+
+            <div class="pagination justify-content-center">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <button class="btn btn-outline-primary"><a href="?page={{ page_obj.previous_page_number }}" style="color:inherit; text-decoration: none;">Previous</a></button>
+                    {% endif %}
+            
+                    <span class="current">
+                        <strong>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</strong>
+                    </span>
+            
+                    {% if page_obj.has_next %}
+                        <button class="btn btn-outline-primary"><a href="?page={{ page_obj.next_page_number }}" style="color:inherit; text-decoration: none;">Next</a></button>
+                    {% endif %}
+                </span>
+            </div>
+
         {% endif %}
     </div>
 {% endblock %}

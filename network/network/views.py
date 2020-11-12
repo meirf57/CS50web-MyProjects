@@ -1,12 +1,15 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.urls import reverse
 from django import forms
+import json 
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, NewPost, Follow
 
@@ -20,15 +23,20 @@ class NewPostForm(forms.Form):
 # render index: all posts, with new post form
 def index(request):
     form = NewPostForm(request.POST)
-    posts = NewPost.objects.all()
+    posts = NewPost.objects.order_by("-timeStamp").all()
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/index.html", {
         "title" : "All Posts",
         "posts" : posts.order_by("-timeStamp").all(),
-        "form": form
+        "form": form,
+        "page_obj" : page_obj
     })
 
 
 # render following
+@login_required
 def following(request):
     flw = Follow.objects.filter(following=request.user)
     # if not following anyone
@@ -45,10 +53,14 @@ def following(request):
         for f in flw:
             if f.profile.username == p.creator:
                 names.append(p)
+    paginator = Paginator(names, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     # pass list of posts
     return render(request, "network/index.html", {
         "title" : "Following",
-        "posts" : names
+        "posts" : names,
+        "page_obj" : page_obj
     })
 
 
@@ -162,6 +174,9 @@ def profile(request, name):
             followers = len(flw)
             flw = Follow.objects.filter(following=profile)
             following = len(flw)
+            paginator = Paginator(posts, 10)
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
         # no data
         except:
             "not found"
@@ -171,7 +186,8 @@ def profile(request, name):
             "name" : name,
             "follow" : f,
             "following" : following,
-            "followers" : followers
+            "followers" : followers,
+            "page_obj" : page_obj
         })
     # no profile fo rthis user
     except:
@@ -215,3 +231,31 @@ def unfollow(request, name):
     # else just in case
     else:
         return HttpResponseRedirect(reverse("index"))
+
+@csrf_exempt
+@login_required
+def like(request):
+    if request.method == "PUT":
+
+        data = json.loads(request.body)
+        if data.get("id") is not None:
+            post_id = data["id"]
+            post_id = post_id[5:]
+        if data.get("num") is not None:
+            num = data["num"]
+
+        print(f"num = {num}")
+        print(f"post_id = {post_id}")
+        try:
+            post = NewPost.objects.get(id=int(post_id))
+            if num == "negative":
+                likes = post.like - 1
+            else:
+                likes = post.like + 1
+            NewPost.objects.filter(id=post_id).update(like=likes)
+            print(f'numLike-{post_id}')
+            return JsonResponse({'like_id' : f'numLike-{post_id}', 'like_count' : likes, "status" : 201})
+        except:
+            print("helloworld")
+            return JsonResponse({'error' : "Post not Found", "status" : 404})
+    return JsonResponse({}, status=400)
