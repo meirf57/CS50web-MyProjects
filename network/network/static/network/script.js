@@ -67,10 +67,10 @@ function insertAfter(referenceNode, newNode) {
   }
 
 
-  function check_edit(id) {
+function check_edit(id) {
     var link = document.querySelector(`#edit-${id}`);
     var lText = link.textContent;
-    
+
     // if edit was clicked
     if (lText=="Edit") {
 
@@ -100,11 +100,11 @@ function insertAfter(referenceNode, newNode) {
         // place where text used to be
         insertAfter(item, form);
     }
-  }
+}
 
 
-  // get new text 
-  function edit_txt(id) {
+// get new text 
+function edit_txt(id) {
     // Get value of form
     const editT = document.getElementById(`edit-${id}`).value;
     const Tid = id;
@@ -112,17 +112,17 @@ function insertAfter(referenceNode, newNode) {
     // Had to separate in to 2
     edit_txt2(Tid, editT);
     return false;
-  }
+}
 
-  // Part 2, edit text
-  function edit_txt2(Tid,editT) {  
+// Part 2, edit text
+function edit_txt2(Tid,editT) {  
     fetch('/editPost/', {
-      method: "PUT",
-      body: JSON.stringify({
+        method: "PUT",
+        body: JSON.stringify({
         id : Tid,
         editT: editT
         })
-      })
+        })
     .then(response => response.json())
     .then(res => {
         if (res.status == 201) {
@@ -135,28 +135,28 @@ function insertAfter(referenceNode, newNode) {
         alert(res.message);
     });
     return false;
-  }
+}
 
-  function upPost(id, text) {
-      // save text and remove element
-      var element = document.getElementById(`post-${id}`);
-      element.parentNode.removeChild(element);
-    
-      // since form not acting regular have to remove
-      var form = document.getElementById(`form-${id}`);
-      form.parentNode.removeChild(form);
+function upPost(id, text) {
+    // save text and remove element
+    var element = document.getElementById(`post-${id}`);
+    element.parentNode.removeChild(element);
 
-      // create new of same but no text
-      var item = document.createElement("strong");
-      item.setAttribute("id", `post-${id}`);
-      item.innerHTML = text;
+    // since form not acting regular have to remove
+    var form = document.getElementById(`form-${id}`);
+    form.parentNode.removeChild(form);
 
-      // display edit link
-      var link = document.querySelector(`#edit-${id}`);
-      link.textContent = "Edit";
+    // create new of same but no text
+    var item = document.createElement("strong");
+    item.setAttribute("id", `post-${id}`);
+    item.innerHTML = text;
 
-      // set in same position as old one
-      var div = document.getElementById(`creator-${id}`);
-      insertAfter(div, item);
-      return false;
-  }
+    // display edit link
+    var link = document.querySelector(`#edit-${id}`);
+    link.textContent = "Edit";
+
+    // set in same position as old one
+    var div = document.getElementById(`creator-${id}`);
+    insertAfter(div, item);
+    return false;
+}
