@@ -260,7 +260,6 @@ def like(request):
             # save users adde and then update
             post.save()
             NewPost.objects.filter(id=post_id).update(like=likes)
-            print(f'numLike-{post_id}')
             return JsonResponse({'like_id' : f'numLike-{post_id}', 'like_count' : likes, "status" : 201})
         # return if error
         except:
@@ -278,8 +277,6 @@ def editPost(request):
             post_id = data["id"]
         if data.get("editT") is not None:
             text = data["editT"]
-        print(f"id of post is: {post_id}")
-        print(f"text is: {text}")
         # update and return data to finish js function
         try:
             NewPost.objects.filter(id=post_id).update(text=text)

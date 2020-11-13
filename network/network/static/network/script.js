@@ -113,7 +113,7 @@ function edit_txt2(Tid,editT) {
 }
 
 function upPost(id, text) {
-    // save text and remove element
+    // remove old text element
     var element = document.getElementById(`post-${id}`);
     element.parentNode.removeChild(element);
 
