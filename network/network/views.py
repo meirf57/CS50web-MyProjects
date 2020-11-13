@@ -242,8 +242,6 @@ def like(request):
         # if data received
         if data.get("id") is not None:
             post_id = data["id"]
-            # get id of post
-            post_id = post_id[5:]
         # positive/negative
         if data.get("num") is not None:
             num = data["num"]

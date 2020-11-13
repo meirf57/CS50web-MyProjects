@@ -47,9 +47,9 @@
                             <a class="text-muted">{{ post.timeStamp }}<br>
                             {% if user.is_authenticated %}
                                 {% if not request.user in post.liked.all %}
-                                    <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>
+                                    <a href="javascript:toggle({{post.id}})" id="like-{{post.id}}" style="text-decoration:none;">🤍</a>
                                 {% else %}
-                                    <button class="btn btn-outline-light" id="like-{{post.id}}">❤</button>
+                                    <a href="javascript:toggle({{post.id}})" id="like-{{post.id}}" style="text-decoration:none;">❤</a>
                                 {% endif %}
                             {% else %}
                                 Likes: 

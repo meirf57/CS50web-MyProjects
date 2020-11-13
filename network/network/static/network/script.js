@@ -1,30 +1,16 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // variables for hearts
+function toggle(id){
     const whiteheart = '🤍'; 
     const redheart = '❤';
-
-    // getting button data
-    var buttons = document.getElementsByTagName("button");
-    var buttonsCount = buttons.length;
-    for (var i = 0; i <= buttonsCount; i += 1) {
-        buttons[i].onclick = function(e) {
-            toggle(this.id);
-        };
+    var heart = document.querySelector(`#like-${id}`);
+    var text = heart.textContent;
+    if (text==whiteheart){
+        like(id, "positive");
+        heart.innerHTML=redheart;
+    } else {
+        like(id, "negative");
+        heart.innerHTML=whiteheart;
     }
-
-    // toggle between hearts, and call like function to change likes
-    function toggle(id){
-        var button = document.querySelector(`#${id}`);
-        var text = button.textContent;
-        if (text==whiteheart){
-            like(id, "positive");
-            button.textContent=redheart;
-        } else {
-            like(id, "negative");
-            button.textContent=whiteheart;
-        }
-    }
-})
+}
 
 
 // add or remove likes
@@ -40,7 +26,8 @@ function like(id, num) {
     .then((res) => { 
         if (res.status == 201) {
             // update number of likes displayed
-            changenum(id, res.like_id, res.like_count);            
+            var like_num = document.querySelector(`#${res.like_id}`);
+            like_num.innerHTML = res.like_count;           
         }
     })
     .catch(function (res) {
@@ -49,24 +36,12 @@ function like(id, num) {
 }
 
 
-// remove ol, make and add new like amount after button 
-function changenum(idbtn, idtxt, num) {
-    var element = document.getElementById(idtxt);
-    element.parentNode.removeChild(element);
-    var item = document.createElement("i");
-    item.setAttribute("id", idtxt);
-    item.innerHTML = num;
-    var div = document.getElementById(idbtn);
-    insertAfter(div, item);
-}
-
-
 // insert new element after other element
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 
-
+// check edit link clicked and perform func
 function check_edit(id) {
     var link = document.querySelector(`#edit-${id}`);
     var lText = link.textContent;

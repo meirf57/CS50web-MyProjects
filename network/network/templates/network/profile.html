@@ -50,11 +50,11 @@
                         {% endif %}
                         <a class="text-muted">{{ post.timeStamp }}<br>
                         {% if user.is_authenticated %}
-                            {% if not request.user in post.liked.all %}
-                                <button class="btn btn-outline-light" id="like-{{post.id}}">🤍</button>
-                            {% else %}
-                                <button class="btn btn-outline-light" id="like-{{post.id}}">❤</button>
-                            {% endif %}
+                        {% if not request.user in post.liked.all %}
+                            <a href="javascript:toggle({{post.id}})" id="like-{{post.id}}" style="text-decoration:none;">🤍</a>
+                        {% else %}
+                            <a href="javascript:toggle({{post.id}})" id="like-{{post.id}}" style="text-decoration:none;">❤</a>
+                        {% endif %}
                         {% else %}
                             Likes: 
                         {% endif %}
@@ -67,20 +67,18 @@
             <br>
         {% endfor %}
 
-        <div class="pagination">
+        <div class="pagination justify-content-center">
             <span class="step-links">
                 {% if page_obj.has_previous %}
-                    <a href="?page=1">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    <button class="btn btn-outline-primary"><a href="?page={{ page_obj.previous_page_number }}" style="color:inherit; text-decoration: none;">Previous</a></button>
                 {% endif %}
         
                 <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    <strong>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</strong>
                 </span>
         
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    <button class="btn btn-outline-primary"><a href="?page={{ page_obj.next_page_number }}" style="color:inherit; text-decoration: none;">Next</a></button>
                 {% endif %}
             </span>
         </div>
