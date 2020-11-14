@@ -1,3 +1,4 @@
+// toggle like icon function
 function toggle(id){
     const whiteheart = '🤍'; 
     const redheart = '❤';
@@ -40,6 +41,7 @@ function like(id, num) {
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
+
 
 // check edit link clicked and perform func
 function check_edit(id) {
@@ -86,7 +88,6 @@ function edit_txt(id) {
 
     // Had to separate in to 2
     edit_txt2(Tid, editT);
-    return false;
 }
 
 // Part 2, edit text
@@ -109,7 +110,6 @@ function edit_txt2(Tid,editT) {
     .catch(function (res) {
         alert(res.message);
     });
-    return false;
 }
 
 function upPost(id, text) {
@@ -133,5 +133,4 @@ function upPost(id, text) {
     // set in same position as old one
     var div = document.getElementById(`creator-${id}`);
     insertAfter(div, item);
-    return false;
 }
