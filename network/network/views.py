@@ -17,7 +17,7 @@ from .models import User, NewPost, Follow
 # form for post, image just a thought
 class NewPostForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Post', 'class' : 'form-control', 'rows' : 4}))
-    #image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
 
 
 # render index: all posts, with new post form
@@ -125,10 +125,10 @@ def newpost(request):
         form = NewPostForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data["text"]
-            #image = form.cleaned_data["image"]
+            image = form.cleaned_data["image"]
             # add post to db
             try:
-                newp = NewPost(creator=request.user.username, text=text, like=0)
+                newp = NewPost(creator=request.user.username, text=text, image=image, like=0)
                 newp.save()
                 return HttpResponseRedirect(reverse("index"))
             # just in case
@@ -169,7 +169,7 @@ def profile(request, name):
             f = ''
         # get data to display, posts/following/followers      
         try:
-            posts = NewPost.objects.filter(creator=profile)
+            posts = NewPost.objects.filter(creator=profile).order_by("-timeStamp")
             flw = Follow.objects.filter(profile=profile)
             followers = len(flw)
             flw = Follow.objects.filter(following=profile)
