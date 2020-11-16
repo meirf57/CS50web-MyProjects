@@ -1,0 +1,13 @@
+{% extends "packList/layout.html" %}
+
+{% block nav %}
+    <div>
+        <a href="#">Hello</a>
+    </div>
+    {% if user.is_authenticated %}
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <h1>Hello world!</h1>
+{% endblock %}

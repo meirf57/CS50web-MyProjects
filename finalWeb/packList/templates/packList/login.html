@@ -1,0 +1,31 @@
+{% extends "packList/layout.html" %}
+
+{% block body %}
+
+    {% if message %}
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <main class="container p-5">
+        <h2>Login</h2><br>
+
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+            <input class="btn btn-outline-primary" type="submit" value="Login">
+        </form>
+        
+        <br><br>
+        Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+    </main>
+
+    
+
+{% endblock %}
