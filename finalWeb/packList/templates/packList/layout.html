@@ -34,11 +34,11 @@
 
         <div class="row">
             <div class="sidebar col-lg-2 col-md-3">
-                <h3>My Lists</h3>
+                <h3 style="padding-left: 10px;">My Lists</h3>
                 {% block nav %}
                     {% if user.is_authenticated %}
                         {% for list in lists %}
-                            <div>
+                            <div style="padding-left: 10px;">
                                 <a href="/mylist/{{list.id}}">{{list.title}}</a>
                             </div>
                         {% endfor %}
