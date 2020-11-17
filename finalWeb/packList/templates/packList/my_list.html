@@ -1,0 +1,63 @@
+{% extends "packList/layout.html" %}
+
+{% block body %}
+
+    {% if message %}
+        <div class="alert alert-warning" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if mlist %}
+    <h2> Title: {{mlist.title}} </h2> 
+    
+    {% for item in items %}
+    <div class="card-column" style="padding: 1em;">
+        <div class="card">
+            <div class="card-body">
+                <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+                    {% if item.image %} 
+                        <li style="padding-right:1em">   
+                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
+                            <br>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <button class="btn btn-outline-success float-right">Done</button>
+                        <button class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
+                        <button class="btn btn-outline-warning float-right" style="margin-right: 5px;">Edit</button>
+                        
+                        <h3>{{item.title}}</h3>
+                        
+                        {% if item.link %}
+                            {% if mlist.category == "BOOKS" %}
+                                <i><a href="{{item.link}}" target="_blank">Link to Goodreads</a></i>
+                            {% elif mlist.category == "SPORTS" %}
+                                <i><a href="{{item.link}}" target="_blank">YouTube Highlights</a></i>
+                            {% else %}
+                                <i><a href="{{item.link}}" target="_blank">YouTube Trailer</a></i>
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {{mlist.category}}
+
+    <div id="item-form" style="display: none;">
+        <main class="container p-5">
+            <form action="/mylist/{{mlist.id}}" method="post">
+                {% csrf_token %}
+                <div class="form-group">{{ form.title }}</div>
+                <div class="form-group">{{ form.image }}</div>
+                <button class="btn btn-primary" type="submit">Add Item</button>
+            </form>
+        </main>
+    </div>
+
+    <a href="javascript:add_form()" id="add-form" style="color:green;text-decoration:none;display: block;"><h1>+</h1></a>
+    {% endif %}
+
+{% endblock %}

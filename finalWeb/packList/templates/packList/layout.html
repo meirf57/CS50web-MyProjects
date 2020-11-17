@@ -6,12 +6,13 @@
 
     <head>
         <title>Pack List</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link href="{% static 'packList/styles.css' %}" rel="stylesheet">
+        <script src="{% static 'packList/script.js' %}"></script>
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark">
-            <a class="navbar-brand"><h3>Pack List</h3></a>
+            <a class="navbar-brand" href="{% url 'index' %}"><h3>Pack List</h3></a>
 
             <div>
                 <ul class="nav">
@@ -35,6 +36,13 @@
             <div class="sidebar col-lg-2 col-md-3">
                 <h3>My Lists</h3>
                 {% block nav %}
+                    {% if user.is_authenticated %}
+                        {% for list in lists %}
+                            <div>
+                                <a href="/mylist/{{list.id}}">{{list.title}}</a>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 {% endblock %}
             </div>
             <div class="main col-lg-10 col-md-9" style="padding: 1em;" >

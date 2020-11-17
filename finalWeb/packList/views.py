@@ -4,10 +4,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django import forms
 
-from .models import User
+from .models import User, My_List, Item, Comment
 
-# Views
 
 # login
 def login_view(request):
@@ -67,6 +67,123 @@ def register(request):
 
 
 
+# List of category items
+List_Category = [('LIST','List'),('BOOKS', 'Books'),
+        ('MOVIES', 'Movies'),('SPORTS', 'Sports')]
+
+# new listing form info
+class NewListForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    category = forms.CharField(label='Category', widget=forms.Select(choices= List_Category, attrs={'class': 'form-control'}))
+
+
 # index
 def index(request):
-    return render(request, "packList/index.html")
+    # if logged in
+    if request.user.username:
+        # check if user follows this profile
+        try:
+            lists = My_List.objects.filter(creator=request.user)
+        except:
+            lists = '' 
+    # not logged in 
+    else:
+        lists = ''
+    return render(request, "packList/index.html", {
+        "form": NewListForm(),
+        "existing": False,
+        "lists": lists
+    })
+
+
+@login_required
+def newlist(request):
+    if request.method == "POST":
+        # get data given
+        form = NewListForm(request.POST)
+        # if data is good
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            category = form.cleaned_data["category"]
+            # saving new file
+            try:
+                mlist = My_List(creator=request.user,title=title,category=category.upper())
+                mlist.save()
+                return HttpResponseRedirect(reverse("index"))
+            # just in case
+            except IntegrityError:
+                return render(request, "packList/index.html", {
+                "form": form,
+                "existing": True,
+                "message": "This List already exists."
+                })
+        # form not valid so redisplay blank page
+        else:
+            return render(request, "packList/index.html", {
+            "form": form,
+            "existing": False
+            })
+
+
+
+class NewItemForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title/Text', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    #link = forms.CharField(label="Link URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Link URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+   
+
+@login_required
+def mylist(request, id):
+    if request.method == "POST":
+        mlist = My_List.objects.get(id=id)
+        # get data given
+        form = NewItemForm(request.POST)
+        # if data is good
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            link = ''
+            if mlist.category == "BOOKS":
+                link = f' https://www.goodreads.com/book/title?id={title}'
+            elif mlist.category == "SPORTS":
+                link = f"https://www.youtube.com/results?q={title}+highlights"
+            elif mlist.category == "MOVIES":
+                link = f"https://www.youtube.com/results?q={title}+trailer"
+            image = form.cleaned_data["image"]
+            # saving new file
+            try:
+                item = Item(l_item=mlist,title=title,link=link,image=image)
+                item.save()
+                return render(request, "packList/my_list.html", {
+                    "form": NewItemForm(),
+                    "mlist": mlist,
+                    "items": Item.objects.filter(l_item=mlist),
+                    "lists": My_List.objects.filter(creator=request.user)
+                    })
+            # just in case
+            except IntegrityError:
+                return render(request, "packList/my_list.html", {
+                "form": form,
+                "message": "This Item already exists.",
+                "mlist": mlist,
+                "items": Item.objects.filter(l_item=mlist),
+                "lists": My_List.objects.filter(creator=request.user)
+                })
+    # method is get
+    else:
+        try:
+            mlist = My_List.objects.get(id=id)
+        except:
+            return render(request, "packList/my_list.html", {
+                    "message": "This List was not found.",
+                    "lists": My_List.objects.filter(creator=request.user)
+                    })
+        try:
+            items = Item.objects.filter(l_item=mlist)
+        except:
+            items = ["no items",]
+        return render(request, "packList/my_list.html", {
+            "form": NewItemForm(),
+            "mlist": mlist,
+            "items": items,
+            "lists": My_List.objects.filter(creator=request.user)
+            })
