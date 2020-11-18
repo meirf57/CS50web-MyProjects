@@ -16,6 +16,7 @@ class My_List(models.Model):
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator")
     title = models.CharField(max_length=64, verbose_name="title")
+    #text = models.CharField(max_length=120, verbose_name="text")
     category = models.CharField(choices=List_Category, blank=True, verbose_name="category",null=True, max_length=64)
     share =  models.ManyToManyField(User, blank=True, related_name="share")
     timeStamp = models.DateTimeField(auto_now_add=True,null=True)

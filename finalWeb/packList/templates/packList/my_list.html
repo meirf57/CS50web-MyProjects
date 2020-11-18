@@ -16,9 +16,15 @@
     </h2> 
     Category: {{mlist.category}}
     {% for item in items %}
+    
     <div class="card-column" style="padding: 1em;">
+        {% if item.active %}
         <div class="card">
             <div class="card-body">
+        {% else %}
+        <div class="card" style="background-color: seagreen;">
+            <div class="card-body" style="background-color:rgb(37, 201, 119);">
+        {% endif %}
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
                     {% if item.image %} 
                         <li style="padding-right:1em">   
@@ -27,13 +33,17 @@
                         </li>
                     {% endif %}
                     <li>
-                        <button class="btn btn-outline-success float-right">Done</button>
+                        {% if item.active %}
+                        <form action="{% url 'active' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-success float-right">Done</button>
+                        </form>
+                        {% endif %}
                         <form action="{% url 'remitem' item.id %}" method="post">
                             {% csrf_token %}
                             <button  class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
                         </form>
-                        <button class="btn btn-outline-warning float-right" style="margin-right: 5px;">Edit</button>
-                        
+
                         <h3>{{item.title}}</h3>
                         
                         {% if item.link %}

@@ -7,6 +7,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django import forms
 from django.db.models import Q
+import urllib, json
+from urllib.request import urlopen
+from fuzzywuzzy import process
 
 from .models import User, My_List, Item, Comment
 
@@ -178,27 +181,60 @@ def additem(request, id):
         if form.is_valid():
             title = form.cleaned_data["title"]
             link = ''
+           
+            # if item in book category
             if mlist.category == "BOOKS":
-                link = f' https://www.goodreads.com/book/title?id={title}'
+                # link to good reads
+                link = f'https://www.goodreads.com/book/title?id={title}'
+                # getting data from googlebooksAPI
+                nospacetitle = title.replace(" ",'')
+                word_list = title.split()
+                res_plus = urlopen(f'https://www.googleapis.com/books/v1/volumes?q={nospacetitle}+intitle:{word_list[-1]}')
+                data = json.loads(res_plus.read())
+                ti = data.get('totalItems')
+                if int(ti) == 0:
+                    res = urlopen(f'https://www.googleapis.com/books/v1/volumes?q={nospacetitle}')
+                    data = json.loads(res.read())
+                    ti = data.get('totalItems')
+                if int(ti) > 0:                   
+                    h = data.get('items')
+                    highest = process.extractOne(title,h)
+                    dex = h.index(highest[0])
+                    volumeInfo = h[dex].get('volumeInfo')
+                    img = volumeInfo.get('imageLinks')
+                    bookAPI = {
+                        "title": volumeInfo.get('title'),
+                        "authors": volumeInfo.get('authors'),
+                        "description": volumeInfo.get('description'),
+                        "pages": volumeInfo.get('pageCount'),
+                        "categories": volumeInfo.get('categories'),
+                        "rating": volumeInfo.get('averageRating'),
+                        "image": img.get('thumbnail')
+                    }
+           
+            # if item in sports category
             elif mlist.category == "SPORTS":
                 link = f"https://www.youtube.com/results?q={title}+highlights"
+           
+            #  if item in movies category
             elif mlist.category == "MOVIES":
                 link = f"https://www.youtube.com/results?q={title}+trailer"
-            image = form.cleaned_data["image"]
+            
+            else:
+                image = form.cleaned_data["image"]
+            
+            
             # saving new file
             try:
                 item = Item(l_item=mlist,title=title,link=link,image=image)
                 item.save()
                 return redirect(mylist, id)
+           
             # just in case
             except IntegrityError:
-                return render(request, "packList/my_list.html", {
-                "form": form,
-                "messages": ["This Item already exists."],
-                "mlist": mlist,
-                "items": Item.objects.filter(l_item=mlist),
-                "lists": My_List.objects.filter(creator=request.user)
-                })
+                messages.info(request, f"Oops something went wrong!")
+                return redirect(mylist, mlist.id)
+
 
 
 def remitem(request, id):
@@ -206,6 +242,15 @@ def remitem(request, id):
     mlist = My_List.objects.get(id=item.l_item.id)
     Item.objects.get(id=id).delete()
     messages.info(request, f"Item Removed!")
+    return redirect(mylist, mlist.id)
+
+
+
+def active(request, id):
+    item = Item.objects.get(id=id)
+    mlist = My_List.objects.get(id=item.l_item.id)
+    Item.objects.filter(id=id).update(active=False)
+    messages.info(request, f"Done!")
     return redirect(mylist, mlist.id)
 
 

@@ -11,5 +11,6 @@ urlpatterns = [
     path("mylist/<int:id>", views.mylist, name="title"),
     path("additem/<int:id>", views.additem, name="additem"),
     path("remitem/<int:id>", views.remitem, name="remitem"),
+    path("active/<int:id>", views.active, name="active"),
     path("dellist/<int:id>", views.dellist, name="dellist"),
 ]
