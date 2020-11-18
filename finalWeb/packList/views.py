@@ -1,13 +1,35 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django import forms
+from django.db.models import Q
 
 from .models import User, My_List, Item, Comment
 
+
+# FORMS
+
+# List of category items
+List_Category = [('LIST','List'),('BOOKS', 'Books'),
+        ('MOVIES', 'Movies'),('SPORTS', 'Sports')]
+
+# new listing form info
+class NewListForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    category = forms.CharField(label='Category', widget=forms.Select(choices= List_Category, attrs={'class': 'form-control'}))
+
+
+class NewItemForm(forms.Form):
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title/Text', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    #link = forms.CharField(label="Link URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Link URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+
+
+# VIEWS
 
 # login
 def login_view(request):
@@ -67,16 +89,6 @@ def register(request):
 
 
 
-# List of category items
-List_Category = [('LIST','List'),('BOOKS', 'Books'),
-        ('MOVIES', 'Movies'),('SPORTS', 'Sports')]
-
-# new listing form info
-class NewListForm(forms.Form):
-    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title', 'class' : 'form-control', 'autocomplete' : 'off'}))
-    category = forms.CharField(label='Category', widget=forms.Select(choices= List_Category, attrs={'class': 'form-control'}))
-
-
 # index
 def index(request):
     # if logged in
@@ -96,6 +108,8 @@ def index(request):
     })
 
 
+
+# Adding new list
 @login_required
 def newlist(request):
     if request.method == "POST":
@@ -109,7 +123,11 @@ def newlist(request):
             try:
                 mlist = My_List(creator=request.user,title=title,category=category.upper())
                 mlist.save()
-                return HttpResponseRedirect(reverse("index"))
+                try:
+                    thislist = My_List.objects.order_by("-timeStamp").filter(Q(creator=request.user),Q(title=title))
+                except:
+                    'something went wrong'
+                return redirect(mylist, thislist[0].id)
             # just in case
             except IntegrityError:
                 return render(request, "packList/index.html", {
@@ -124,16 +142,34 @@ def newlist(request):
             "existing": False
             })
 
+  
 
-
-class NewItemForm(forms.Form):
-    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title/Text', 'class' : 'form-control', 'autocomplete' : 'off'}))
-    #link = forms.CharField(label="Link URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Link URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
-    image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
-   
-
+# Render mylist requested
 @login_required
 def mylist(request, id):
+    # method is get
+    try:
+        mlist = My_List.objects.get(id=id)
+    except:
+        return render(request, "packList/my_list.html", {
+                "messages": ["This List was not found."],
+                "lists": My_List.objects.filter(creator=request.user)
+                })
+    try:
+        items = Item.objects.filter(l_item=mlist)
+    except:
+        items = ["no items",]
+    return render(request, "packList/my_list.html", {
+        "form": NewItemForm(),
+        "mlist": mlist,
+        "items": items,
+        "lists": My_List.objects.filter(creator=request.user)
+        })
+
+
+
+# Add item to list
+def additem(request, id):
     if request.method == "POST":
         mlist = My_List.objects.get(id=id)
         # get data given
@@ -153,37 +189,28 @@ def mylist(request, id):
             try:
                 item = Item(l_item=mlist,title=title,link=link,image=image)
                 item.save()
-                return render(request, "packList/my_list.html", {
-                    "form": NewItemForm(),
-                    "mlist": mlist,
-                    "items": Item.objects.filter(l_item=mlist),
-                    "lists": My_List.objects.filter(creator=request.user)
-                    })
+                return redirect(mylist, id)
             # just in case
             except IntegrityError:
                 return render(request, "packList/my_list.html", {
                 "form": form,
-                "message": "This Item already exists.",
+                "messages": ["This Item already exists."],
                 "mlist": mlist,
                 "items": Item.objects.filter(l_item=mlist),
                 "lists": My_List.objects.filter(creator=request.user)
                 })
-    # method is get
-    else:
-        try:
-            mlist = My_List.objects.get(id=id)
-        except:
-            return render(request, "packList/my_list.html", {
-                    "message": "This List was not found.",
-                    "lists": My_List.objects.filter(creator=request.user)
-                    })
-        try:
-            items = Item.objects.filter(l_item=mlist)
-        except:
-            items = ["no items",]
-        return render(request, "packList/my_list.html", {
-            "form": NewItemForm(),
-            "mlist": mlist,
-            "items": items,
-            "lists": My_List.objects.filter(creator=request.user)
-            })
+
+
+def remitem(request, id):
+    item = Item.objects.get(id=id)
+    mlist = My_List.objects.get(id=item.l_item.id)
+    Item.objects.get(id=id).delete()
+    messages.info(request, f"Item Removed!")
+    return redirect(mylist, mlist.id)
+
+
+
+def dellist(request, id):
+    My_List.objects.get(id=id).delete()
+    messages.info(request, f"List Removed!")
+    return HttpResponseRedirect(reverse("index"))

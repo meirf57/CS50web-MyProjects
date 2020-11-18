@@ -2,15 +2,19 @@
 
 {% block body %}
 
-    {% if message %}
+    {% if messages %}
+        {% for message in messages %}
         <div class="alert alert-warning" role="alert">
             {{ message }}
         </div>
+        {% endfor %}
     {% endif %}
 
     {% if mlist %}
-    <h2> Title: {{mlist.title}} </h2> 
-    
+    <h2> Title: {{mlist.title}} 
+        <a href="{% url 'dellist' mlist.id %}" style='padding-left: 10px; color: red; text-decoration:none;'>x</a>
+    </h2> 
+    Category: {{mlist.category}}
     {% for item in items %}
     <div class="card-column" style="padding: 1em;">
         <div class="card">
@@ -18,13 +22,16 @@
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
                     {% if item.image %} 
                         <li style="padding-right:1em">   
-                            <img src="{{ post.image }}" class="rounded float-left" alt="{{ post.creator }}" height="200" >
+                            <img src="{{ item.image }}" class="rounded float-left" alt="{{ item.creator }}" height="200" >
                             <br>
                         </li>
                     {% endif %}
                     <li>
                         <button class="btn btn-outline-success float-right">Done</button>
-                        <button class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
+                        <form action="{% url 'remitem' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button  class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
+                        </form>
                         <button class="btn btn-outline-warning float-right" style="margin-right: 5px;">Edit</button>
                         
                         <h3>{{item.title}}</h3>
@@ -44,11 +51,11 @@
         </div>
     </div>
     {% endfor %}
-    {{mlist.category}}
+    
 
     <div id="item-form" style="display: none;">
         <main class="container p-5">
-            <form action="/mylist/{{mlist.id}}" method="post">
+            <form action="{% url 'additem' mlist.id %}" method="post">
                 {% csrf_token %}
                 <div class="form-group">{{ form.title }}</div>
                 <div class="form-group">{{ form.image }}</div>
@@ -57,7 +64,7 @@
         </main>
     </div>
 
-    <a href="javascript:add_form()" id="add-form" style="color:green;text-decoration:none;display: block;"><h1>+</h1></a>
+    <a href="javascript:add_form()" id="add-form" style="color:green; text-decoration:none; display: block;"><h1>+</h1></a>
     {% endif %}
 
 {% endblock %}
