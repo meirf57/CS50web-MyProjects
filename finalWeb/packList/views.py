@@ -181,7 +181,8 @@ def additem(request, id):
         if form.is_valid():
             title = form.cleaned_data["title"]
             link = ''
-           
+            image = ''
+            
             # if item in book category
             if mlist.category == "BOOKS":
                 # link to good reads
@@ -201,7 +202,6 @@ def additem(request, id):
                     highest = process.extractOne(title,h)
                     dex = h.index(highest[0])
                     volumeInfo = h[dex].get('volumeInfo')
-                    img = volumeInfo.get('imageLinks')
                     bookAPI = {
                         "title": volumeInfo.get('title'),
                         "authors": volumeInfo.get('authors'),
@@ -209,9 +209,14 @@ def additem(request, id):
                         "pages": volumeInfo.get('pageCount'),
                         "categories": volumeInfo.get('categories'),
                         "rating": volumeInfo.get('averageRating'),
-                        "image": img.get('thumbnail')
+                        "image": ''
                     }
-                    multi = [f"Authors: {bookAPI.get('authors')}", f"Rating: {bookAPI.get('rating')}", f"category: {bookAPI.get('categories')}", f"pages: {bookAPI.get('pages')}"]
+                    if 'imageLinks' in volumeInfo:
+                        img = volumeInfo.get('imageLinks')
+                        bookAPI["image"] = img.get('thumbnail')
+
+
+                    multi = f"Authors: {bookAPI.get('authors')}, Rating: {bookAPI.get('rating')}, Category: {bookAPI.get('categories')}, Pages: {bookAPI.get('pages')}."
                     try:
                         item = Item(l_item=mlist,title=bookAPI.get("title"),multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"))
                         item.save()
