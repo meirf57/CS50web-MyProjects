@@ -45,7 +45,12 @@
                         </form>
 
                         <h3>{{item.title}}</h3>
-                        
+                        {% if item.multi %}
+                            {{item.multi}}
+                        {% endif %}
+                        {% if item.text %}
+                            <p>{{item.text}}</p>
+                        {% endif %}
                         {% if item.link %}
                             {% if mlist.category == "BOOKS" %}
                                 <i><a href="{{item.link}}" target="_blank">Link to Goodreads</a></i>

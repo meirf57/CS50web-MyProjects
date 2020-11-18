@@ -211,7 +211,15 @@ def additem(request, id):
                         "rating": volumeInfo.get('averageRating'),
                         "image": img.get('thumbnail')
                     }
-           
+                    multi = [f"Authors: {bookAPI.get('authors')}", f"Rating: {bookAPI.get('rating')}", f"category: {bookAPI.get('categories')}", f"pages: {bookAPI.get('pages')}"]
+                    try:
+                        item = Item(l_item=mlist,title=bookAPI.get("title"),multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"))
+                        item.save()
+                        return redirect(mylist, id)
+                    # just in case
+                    except IntegrityError:
+                        messages.info(request, f"Oops something went wrong!")
+                        return redirect(mylist, mlist.id)
             # if item in sports category
             elif mlist.category == "SPORTS":
                 link = f"https://www.youtube.com/results?q={title}+highlights"
