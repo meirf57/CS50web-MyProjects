@@ -12,7 +12,7 @@
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark">
-            <a class="navbar-brand" href="{% url 'index' %}"><h3>Pack List</h3></a>
+            <a class="navbar-brand" href="{% url 'index' %}"><h2><i>U</i>List</h2></a>
 
             <div>
                 <ul class="nav">
@@ -34,12 +34,19 @@
 
         <div class="row" style="width: 100%;">
             <div class="sidebar col-lg-2 col-md-9">
-                <h3 style="padding-left: 10px;">My Lists</h3>
+                <h4 style="padding-left: 10px;">My Lists:</h4>
                 {% block nav %}
                     {% if user.is_authenticated %}
                         {% for list in lists %}
                             <div style='padding-left: 10px;'>
                                 <a href="/mylist/{{list.id}}" >{{list.title}}</a>
+                            </div>
+                        {% endfor %}
+                        <br>
+                        <h5 style="padding-left: 10px;">Shared Lists:</h5>
+                        {% for list in lists %}
+                            <div style='padding-left: 10px;'>
+                                <a href="/mylist/{{share.id}}" >{{share.title}}</a>
                             </div>
                         {% endfor %}
                     {% endif %}

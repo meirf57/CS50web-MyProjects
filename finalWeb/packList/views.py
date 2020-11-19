@@ -98,18 +98,24 @@ def register(request):
 def index(request):
     # if logged in
     if request.user.username:
-        # check if user follows this profile
+        # check for user lists
         try:
             lists = My_List.objects.filter(creator=request.user)
         except:
-            lists = '' 
+            lists = ''
+        # check if any lists shared
+        try:
+            share = My_List.objects.filter(share=request.user)
+        except:
+            share = ''
     # not logged in 
     else:
         lists = ''
     return render(request, "packList/index.html", {
         "form": NewListForm(),
         "existing": False,
-        "lists": lists
+        "lists": lists,
+        "share": share
     })
 
 
@@ -164,11 +170,17 @@ def mylist(request, id):
         items = Item.objects.filter(l_item=mlist)
     except:
         items = ["no items",]
+    # check if any lists shared
+        try:
+            share = My_List.objects.filter(share=request.user)
+        except:
+            share = ''
     return render(request, "packList/my_list.html", {
         "form": NewItemForm(),
         "mlist": mlist,
         "items": items,
-        "lists": My_List.objects.filter(creator=request.user)
+        "lists": My_List.objects.filter(creator=request.user),
+        "share": share
         })
 
 
