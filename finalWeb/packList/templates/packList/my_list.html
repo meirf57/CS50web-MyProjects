@@ -15,9 +15,28 @@
         <a href="{% url 'dellist' mlist.id %}" style='padding-left: 10px; color: red; text-decoration:none;'>x</a>
     </h2> 
     Category: {{mlist.category}}
-    {% for item in items %}
-    
+
+    <a href="javascript:add_form()" id="add-form" style="color:green; text-decoration:none; display: block;"><h1>+</h1></a>
+
+     
     <div class="card-column" style="padding: 1em;">
+
+        <div id="item-form" style="display: none;">
+            <main class="container p-5">
+                <form action="{% url 'additem' mlist.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">{{ form.title }}</div>
+                    {% if mlist.category == "LIST" %}
+                        <div class="form-group">{{ form.description }}</div>
+                        <div class="form-group">{{ form.image }}</div>
+                        <div class="form-group">{{ form.link }}</div>
+                    {% endif %}
+                    <button class="btn btn-primary" type="submit">Add Item</button>
+                </form>
+            </main>
+        </div>
+
+        {% for item in items %}
         {% if item.active %}
         <div class="card">
             <div class="card-body">
@@ -25,61 +44,60 @@
         <div class="card" style="background-color: seagreen;">
             <div class="card-body" style="background-color:rgb(37, 201, 119);">
         {% endif %}
+
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
+                    <li><strong>
                     {% if item.image %} 
-                        <li style="padding-right:1em">   
+                        <i style="padding-right:1em; float: left;">   
                             <img src="{{ item.image }}" class="rounded float-left" alt="{{ item.creator }}" height="200" >
                             <br>
-                        </li>
+                        </i>
                     {% endif %}
-                    <li>
-                        {% if item.active %}
-                        <form action="{% url 'active' item.id %}" method="post">
-                            {% csrf_token %}
-                            <button class="btn btn-outline-success float-right">Done</button>
-                        </form>
-                        {% endif %}
-                        <form action="{% url 'remitem' item.id %}" method="post">
-                            {% csrf_token %}
-                            <button  class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
-                        </form>
+   
+                    {% if item.active %}
+                    <form action="{% url 'active' item.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-success float-right">Done</button>
+                    </form>
+                    {% endif %}
+                    <form action="{% url 'remitem' item.id %}" method="post">
+                        {% csrf_token %}
+                        <button  class="btn btn-outline-danger float-right" style="margin-right: 5px;">Remove</button>
+                    </form>
 
-                        <h3>{{item.title}}</h3>
-                        {% if item.multi %}
-                            <strong><i>{{item.multi}}</i></strong>
+                    <h3>{{item.title}}</h3>
+                    
+                    {% if item.multi %}
+                        <i>{{item.multi}}</i>
+                    {% endif %}
+                    </strong>
+                    
+                    {% if item.text %}
+                        <p>{{item.text}}</p>
+                    {% endif %}
+                    
+                    {% if item.link %}
+                        {% if mlist.category == "BOOKS" %}
+                            <i><a href="{{item.link}}" target="_blank">Link to Goodreads</a></i>
+                        {% elif mlist.category == "SPORTS" %}
+                            <i><a href="{{item.link}}" target="_blank">YouTube Highlights</a></i>
+                        {% else %}
+                            <i><a href="{{item.link}}" target="_blank">YouTube Trailer</a></i>
                         {% endif %}
-                        {% if item.text %}
-                            <p>{{item.text}}</p>
-                        {% endif %}
-                        {% if item.link %}
-                            {% if mlist.category == "BOOKS" %}
-                                <i><a href="{{item.link}}" target="_blank">Link to Goodreads</a></i>
-                            {% elif mlist.category == "SPORTS" %}
-                                <i><a href="{{item.link}}" target="_blank">YouTube Highlights</a></i>
-                            {% else %}
-                                <i><a href="{{item.link}}" target="_blank">YouTube Trailer</a></i>
-                            {% endif %}
-                        {% endif %}
+                    {% endif %}
                     </li>
                 </ul>
             </div>
         </div>
+        {% endfor %} 
     </div>
-    {% endfor %}
-    
-
-    <div id="item-form" style="display: none;">
-        <main class="container p-5">
-            <form action="{% url 'additem' mlist.id %}" method="post">
-                {% csrf_token %}
-                <div class="form-group">{{ form.title }}</div>
-                <div class="form-group">{{ form.image }}</div>
-                <button class="btn btn-primary" type="submit">Add Item</button>
-            </form>
-        </main>
-    </div>
-
-    <a href="javascript:add_form()" id="add-form" style="color:green; text-decoration:none; display: block;"><h1>+</h1></a>
+    <footer class="small text-center text-muted">
+        {% if mlist.category == "BOOKS" %}
+        Data provided from <a href="https://developers.google.com/books">Google Books Api</a>.
+        {% elif mlist.category == "MOVIES" %}
+        Data provided from free account by <a href="http://www.omdbapi.com/">IEX</a>. View <a href="http://www.omdbapi.com/">IEX’s Terms of Use</a>.
+        {% endif %}
+    </footer>
     {% endif %}
 
 {% endblock %}

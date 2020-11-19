@@ -9,6 +9,7 @@ from django import forms
 from django.db.models import Q
 import urllib, json
 from urllib.request import urlopen
+import requests
 #from fuzzywuzzy import process
 
 from .models import User, My_List, Item, Comment
@@ -27,8 +28,9 @@ class NewListForm(forms.Form):
 
 
 class NewItemForm(forms.Form):
-    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title/Text', 'class' : 'form-control', 'autocomplete' : 'off'}))
-    #link = forms.CharField(label="Link URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Link URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    title = forms.CharField(label="Title", widget=forms.TextInput(attrs={'placeholder' : 'Title', 'class' : 'form-control', 'autocomplete' : 'off'}))
+    description = forms.CharField(label="Description", required=False, widget=forms.Textarea(attrs={'placeholder' : 'Description', 'class' : 'form-control', 'rows' : 5}))
+    link = forms.CharField(label="Link URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Link URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
     image = forms.CharField(label="Image URL", required=False, widget=forms.TextInput(attrs={'placeholder' : 'Image URL', 'class' : 'form-control', 'autocomplete' : 'off'}))
 
 
@@ -182,6 +184,7 @@ def additem(request, id):
             title = form.cleaned_data["title"]
             link = ''
             image = ''
+            description = ''
             
             # if item in book category
             if mlist.category == "BOOKS":
@@ -215,46 +218,88 @@ def additem(request, id):
                         img = volumeInfo.get('imageLinks')
                         bookAPI["image"] = img.get('thumbnail')
 
-
+                    title = bookAPI.get("title")
                     multi = f"Authors: {bookAPI.get('authors')}, Rating: {bookAPI.get('rating')}, Category: {bookAPI.get('categories')}, Pages: {bookAPI.get('pages')}."
                     try:
-                        item = Item(l_item=mlist,title=bookAPI.get("title"),multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"))
+                        item = Item(l_item=mlist,title=title,multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"))
                         item.save()
+                        messages.info(request, f"{title}, added to list!")
                         return redirect(mylist, id)
                     # just in case
                     except IntegrityError:
                         messages.info(request, f"Oops something went wrong!")
-                        return redirect(mylist, mlist.id)
+                        return redirect(mylist, id)
+            
             # if item in sports category
             elif mlist.category == "SPORTS":
                 link = f"https://www.youtube.com/results?q={title}+highlights"
            
-            #  if item in movies category
+            # if item in movies category
             elif mlist.category == "MOVIES":
                 link = f"https://www.youtube.com/results?q={title}+trailer"
-            
+                try:
+                    apiKey = "d3e99fda"
+                    params = {'t':f"{title}",'plot': "full"}
+                    data_URL = 'http://www.omdbapi.com/?apikey='+apiKey
+                    response = requests.get(data_URL,params=params)
+                except requests.RequestException:
+                    return None
+                search = response.json()
+                # check if result has matches
+                if search["Response"] == "True":
+                    # make dict with data
+                    movieAPI = {
+                        "title" : search["Title"],
+                        "year" : search["Released"],
+                        "director" : search["Director"],
+                        "genre" : search["Genre"],
+                        "rating" : search["imdbRating"],
+                        "img" : search["Poster"],
+                        "plot" : search["Plot"]}
+                    # make multi text
+                    multi = f"Released: {movieAPI.get('year')}. Director: {movieAPI.get('director')}. Genre: {movieAPI.get('genre')}. Rating (IMDB): {movieAPI.get('rating')}."
+                    # save data in db
+                    try:
+                        item = Item(l_item=mlist,title=movieAPI.get("title"),multi=multi,text=movieAPI.get("plot"),link=link,image=movieAPI.get("img"))
+                        item.save()
+                        messages.info(request, f"{title}, added to list!")
+                        return redirect(mylist, id)
+                    # just in case
+                    except IntegrityError:
+                        messages.info(request, f"Oops something went wrong!")
+                        return redirect(mylist, id)
+                
+                # title as given not in iex database
+                else:
+                    messages.info(request, f"{title}, not found in database. {title} added to list!")
+
+            # else LIST category
             else:
+                # get data and set message
+                description = form.cleaned_data["description"]
                 image = form.cleaned_data["image"]
-            
+                link = form.cleaned_data["link"]
+                messages.info(request, f"{title}, added to list!")
             
             # saving new file
             try:
-                item = Item(l_item=mlist,title=title,link=link,image=image)
+                item = Item(l_item=mlist,title=title,text=description,link=link,image=image)
                 item.save()
                 return redirect(mylist, id)
            
             # just in case
             except IntegrityError:
                 messages.info(request, f"Oops something went wrong!")
-                return redirect(mylist, mlist.id)
+                return redirect(mylist, id)
 
 
 
 def remitem(request, id):
     item = Item.objects.get(id=id)
+    title = item.title
     mlist = My_List.objects.get(id=item.l_item.id)
     Item.objects.get(id=id).delete()
-    messages.info(request, f"Item Removed!")
+    messages.info(request, f"{title} Removed!")
     return redirect(mylist, mlist.id)
 
 

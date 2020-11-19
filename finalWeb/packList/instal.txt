@@ -1,0 +1,9 @@
+Installed for project:
+
+install python
+install django
+install urllib
+install urllib.request
+install requests
+install fuzzywuzzy
+install python-decouple
