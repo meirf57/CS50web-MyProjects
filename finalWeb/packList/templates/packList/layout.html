@@ -44,9 +44,9 @@
                         {% endfor %}
                         <br>
                         <h5 style="padding-left: 10px;">Shared Lists:</h5>
-                        {% for list in lists %}
+                        {% for list in share %}
                             <div style='padding-left: 10px;'>
-                                <a href="/mylist/{{share.id}}" >{{share.title}}</a>
+                                <a href="/mylist/{{list.id}}" >{{list.title}}</a>
                             </div>
                         {% endfor %}
                     {% endif %}

@@ -171,10 +171,10 @@ def mylist(request, id):
     except:
         items = ["no items",]
     # check if any lists shared
-        try:
-            share = My_List.objects.filter(share=request.user)
-        except:
-            share = ''
+    try:
+        share = My_List.objects.filter(share=request.user)
+    except:
+        share = ''
     return render(request, "packList/my_list.html", {
         "form": NewItemForm(),
         "mlist": mlist,

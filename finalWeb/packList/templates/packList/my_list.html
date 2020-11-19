@@ -11,8 +11,10 @@
     {% endif %}
 
     {% if mlist %}
-    <h2> Title: {{mlist.title}} 
+    <h2> Title: {{mlist.title}}
+        {% if user == mlist.creator %}
         <a href="{% url 'dellist' mlist.id %}" style='padding-left: 10px; color: red; text-decoration:none;'>x</a>
+        {% endif %}
     </h2> 
     Category: {{mlist.category}}
 
