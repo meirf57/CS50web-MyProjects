@@ -9,7 +9,7 @@ from django import forms
 from django.db.models import Q
 import urllib, json
 from urllib.request import urlopen
-from fuzzywuzzy import process
+#from fuzzywuzzy import process
 
 from .models import User, My_List, Item, Comment
 
@@ -188,7 +188,7 @@ def additem(request, id):
                 # link to good reads
                 link = f'https://www.goodreads.com/book/title?id={title}'
                 # getting data from googlebooksAPI
-                nospacetitle = title.replace(" ",'')
+                nospacetitle = title.replace(" ",'%20')
                 word_list = title.split()
                 res_plus = urlopen(f'https://www.googleapis.com/books/v1/volumes?q={nospacetitle}+intitle:{word_list[-1]}')
                 data = json.loads(res_plus.read())
@@ -199,9 +199,9 @@ def additem(request, id):
                     ti = data.get('totalItems')
                 if int(ti) > 0:                   
                     h = data.get('items')
-                    highest = process.extractOne(title,h)
-                    dex = h.index(highest[0])
-                    volumeInfo = h[dex].get('volumeInfo')
+                    #highest = process.extractOne(title,h)
+                    #dex = h.index(highest[0])
+                    volumeInfo = h[0].get('volumeInfo')
                     bookAPI = {
                         "title": volumeInfo.get('title'),
                         "authors": volumeInfo.get('authors'),
