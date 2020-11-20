@@ -356,3 +356,25 @@ def addPost(request):
         except:
             return JsonResponse({'error' : "Post not Found", "status" : 404})
     return JsonResponse({}, status=400)
+
+
+
+@login_required
+def share(request):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        # if data received
+        if data.get("id") is not None:
+            id = data["id"]
+        if data.get("name") is not None:
+            text = data["name"]
+        try:
+            ulist = My_List.objects.get(id=id)
+            user = User.objects.get(username=text)
+            ulist.share.add(user)
+            return JsonResponse({'text': f"Shared with {text}", "status" : 201})
+        # return if error
+        except:
+            return JsonResponse({'error' : "user not added", "status" : 404})
+    return JsonResponse({}, status=400)
+
