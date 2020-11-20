@@ -31,15 +31,7 @@ class Item(models.Model):
     text = models.CharField(max_length=150, verbose_name="text")
     link = models.URLField(blank=True, verbose_name="link URL", null=True)
     image = models.URLField(blank=True, verbose_name="Image URL", null=True)
+    comments = models.CharField(max_length=120, verbose_name="comments")
     active = models.BooleanField(default=True)
-    # so error doesnt come up vscode
-    objects = models.Manager()
-
-
-class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_comment") 
-    text = models.TextField()
-    item_id = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="item_comment")
-    time = models.DateTimeField(auto_now_add=True,null=True)
     # so error doesnt come up vscode
     objects = models.Manager()

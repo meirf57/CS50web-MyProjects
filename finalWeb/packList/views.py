@@ -10,9 +10,10 @@ from django.db.models import Q
 import urllib, json
 from urllib.request import urlopen
 import requests
+from django.views.decorators.csrf import csrf_exempt
 #from fuzzywuzzy import process
 
-from .models import User, My_List, Item, Comment
+from .models import User, My_List, Item
 
 
 # FORMS
@@ -111,6 +112,7 @@ def index(request):
     # not logged in 
     else:
         lists = ''
+        share = ''
     return render(request, "packList/index.html", {
         "form": NewListForm(),
         "existing": False,
@@ -194,6 +196,7 @@ def additem(request, id):
         # if data is good
         if form.is_valid():
             title = form.cleaned_data["title"]
+            comments = ''
             link = ''
             image = ''
             description = ''
@@ -233,7 +236,7 @@ def additem(request, id):
                     title = bookAPI.get("title")
                     multi = f"Authors: {bookAPI.get('authors')}, Rating: {bookAPI.get('rating')}, Category: {bookAPI.get('categories')}, Pages: {bookAPI.get('pages')}."
                     try:
-                        item = Item(l_item=mlist,title=title,multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"))
+                        item = Item(l_item=mlist,title=title,multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"),comments=comments)
                         item.save()
                         messages.info(request, f"{title}, added to list!")
                         return redirect(mylist, id)
@@ -272,7 +275,7 @@ def additem(request, id):
                     multi = f"Released: {movieAPI.get('year')}. Director: {movieAPI.get('director')}. Genre: {movieAPI.get('genre')}. Rating (IMDB): {movieAPI.get('rating')}."
                     # save data in db
                     try:
-                        item = Item(l_item=mlist,title=movieAPI.get("title"),multi=multi,text=movieAPI.get("plot"),link=link,image=movieAPI.get("img"))
+                        item = Item(l_item=mlist,title=movieAPI.get("title"),multi=multi,text=movieAPI.get("plot"),link=link,image=movieAPI.get("img"),comments=comments)
                         item.save()
                         messages.info(request, f"{title}, added to list!")
                         return redirect(mylist, id)
@@ -295,7 +298,7 @@ def additem(request, id):
             
             # saving new file
             try:
-                item = Item(l_item=mlist,title=title,text=description,link=link,image=image)
+                item = Item(l_item=mlist,title=title,text=description,link=link,image=image,comments=comments)
                 item.save()
                 return redirect(mylist, id)
            
@@ -329,3 +332,27 @@ def dellist(request, id):
     My_List.objects.get(id=id).delete()
     messages.info(request, f"List Removed!")
     return HttpResponseRedirect(reverse("index"))
+
+
+
+@csrf_exempt
+@login_required
+def addPost(request):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        # if data received
+        if data.get("id") is not None:
+            post_id = data["id"]
+        if data.get("txt") is not None:
+            text = data["txt"]
+        # update and return data to finish js function
+        try:
+            item = Item.objects.get(id=post_id)
+            comment = item.comments
+            comment = comment + "<strong>" + request.user.username +"</strong>:<i> " + text + "</i><br>"
+            Item.objects.filter(id=post_id).update(comments=comment)
+            return JsonResponse({'post_id' : post_id, 'text': comment, "status" : 201})
+        # return if error
+        except:
+            return JsonResponse({'error' : "Post not Found", "status" : 404})
+    return JsonResponse({}, status=400)

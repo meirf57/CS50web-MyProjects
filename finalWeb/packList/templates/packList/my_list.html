@@ -44,7 +44,7 @@
             <div class="card-body">
         {% else %}
         <div class="card" style="background-color: seagreen;">
-            <div class="card-body" style="background-color:rgb(37, 201, 119);">
+            <div class="card-body" style="background-color:greenyellow;;">
         {% endif %}
 
                 <ul class="list-group list-group-horizontal" style="list-style-type: none;">
@@ -90,6 +90,21 @@
                     </li>
                 </ul>
             </div>
+            {% if item.active %}
+            <div class="card-footer">
+            {% else %}
+            <div class="card-footer" style="background-color: rgb(37, 201, 119);">
+            {% endif %}
+                <small><div id="title-{{item.id}}"><strong>Comments:</strong><br></div>
+                        
+                    <div id="item-list-{{item.id}}" style="padding-left: 1em;">
+                        {% if item.comments %}
+                            {{item.comments|safe}}
+                        {% endif %}
+                    </div>
+                    <a href="javascript:add_comment({{item.id}})" id="addComment-{{item.id}}" style="text-decoration: none;">Add comment.</a>
+                </small>
+            </div>       
         </div>
         {% endfor %} 
     </div>

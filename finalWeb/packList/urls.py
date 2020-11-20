@@ -13,4 +13,5 @@ urlpatterns = [
     path("remitem/<int:id>", views.remitem, name="remitem"),
     path("active/<int:id>", views.active, name="active"),
     path("dellist/<int:id>", views.dellist, name="dellist"),
+    path("addPost/", views.addPost, name="addPost")
 ]
