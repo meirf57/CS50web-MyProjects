@@ -18,7 +18,11 @@
     </h2> 
     Category: {{mlist.category}}
 
-    <button class="btn btn-outline-primary float-right">Share</button>    
+    <form onsubmit="share(`{{mlist.id}}`);" style="float: right;">
+        {% csrf_token %}
+        <input type="text" placeholder="Username" id="share-{{mlist.id}}" autofocus>
+        <input type="submit" value="Share">
+    </form>  
 
     <a href="javascript:add_form()" id="add-form" style="color:green; text-decoration:none; display: block;"><h1>+</h1></a>
      
