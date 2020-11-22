@@ -15,7 +15,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, My_List, Item
 
-
 # FORMS
 
 # List of category items
@@ -39,6 +38,7 @@ class NewItemForm(forms.Form):
 
 # login
 def login_view(request):
+    # post
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -54,6 +54,7 @@ def login_view(request):
             return render(request, "packList/login.html", {
                 "message": "Invalid username and/or password."
             })
+    # get
     else:
         return render(request, "packList/login.html")
 
@@ -68,6 +69,7 @@ def logout_view(request):
 
 # register
 def register(request):
+    # post
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -90,6 +92,7 @@ def register(request):
             })
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
+    # get
     else:
         return render(request, "packList/register.html")
 
@@ -113,6 +116,7 @@ def index(request):
     else:
         lists = ''
         share = ''
+    # render index with all data
     return render(request, "packList/index.html", {
         "form": NewListForm(),
         "existing": False,
@@ -137,11 +141,12 @@ def newlist(request):
                 mlist = My_List(creator=request.user,title=title,category=category.upper())
                 mlist.save()
                 try:
+                    # get most recent entry to get page of new list
                     thislist = My_List.objects.order_by("-timeStamp").filter(Q(creator=request.user),Q(title=title))
                 except:
                     'something went wrong'
                 return redirect(mylist, thislist[0].id)
-            # just in case
+            # just in case return to index
             except IntegrityError:
                 return render(request, "packList/index.html", {
                 "form": form,
@@ -177,6 +182,7 @@ def mylist(request, id):
         share = My_List.objects.filter(share=request.user)
     except:
         share = ''
+    # render page with data
     return render(request, "packList/my_list.html", {
         "form": NewItemForm(),
         "mlist": mlist,
@@ -211,9 +217,12 @@ def additem(request, id):
                 res = urlopen(f'https://www.googleapis.com/books/v1/volumes?q={nospacetitle}')
                 data = json.loads(res.read())
                 ti = data.get('totalItems')
+                # check if any results returned
                 if int(ti) > 0:                   
                     h = data.get('items')
+                    # get first book
                     volumeInfo = h[0].get('volumeInfo')
+                    # populate dict with data
                     bookAPI = {
                         "title": volumeInfo.get('title'),
                         "authors": volumeInfo.get('authors'),
@@ -223,12 +232,15 @@ def additem(request, id):
                         "rating": volumeInfo.get('averageRating'),
                         "image": ''
                     }
+                    # check for image
                     if 'imageLinks' in volumeInfo:
                         img = volumeInfo.get('imageLinks')
                         bookAPI["image"] = img.get('thumbnail')
-
+                    # set title same as book
                     title = bookAPI.get("title")
+                    # multi string
                     multi = f"Authors: {bookAPI.get('authors')}, Rating: {bookAPI.get('rating')}, Category: {bookAPI.get('categories')}, Pages: {bookAPI.get('pages')}."
+                    # save data in new item
                     try:
                         item = Item(l_item=mlist,title=title,multi=multi,text=bookAPI.get("description"),link=link,image=bookAPI.get("image"),comments=comments)
                         item.save()
@@ -246,6 +258,7 @@ def additem(request, id):
             # if item in movies category
             elif mlist.category == "MOVIES":
                 link = f"https://www.youtube.com/results?q={title}+trailer"
+                # get data from omdb
                 try:
                     apiKey = "d3e99fda"
                     params = {'t':f"{title}",'plot': "full"}
@@ -302,28 +315,35 @@ def additem(request, id):
                 return redirect(mylist, id)
 
 
-
+# remove item
 def remitem(request, id):
     item = Item.objects.get(id=id)
     title = item.title
+    # get id of list 
     mlist = My_List.objects.get(id=item.l_item.id)
+    # delete item
     Item.objects.get(id=id).delete()
+    # message and return to list
     messages.info(request, f"{title} Removed!")
     return redirect(mylist, mlist.id)
 
 
-
+# mark as done/nonactive
 def active(request, id):
     item = Item.objects.get(id=id)
+    # get id of list to return to
     mlist = My_List.objects.get(id=item.l_item.id)
+    # update
     Item.objects.filter(id=id).update(active=False)
+    # message and return view
     messages.info(request, f"Done!")
     return redirect(mylist, mlist.id)
 
 
-
+# del list
 def dellist(request, id):
     My_List.objects.get(id=id).delete()
+    # message and return to index
     messages.info(request, f"List Removed!")
     return HttpResponseRedirect(reverse("index"))
 
