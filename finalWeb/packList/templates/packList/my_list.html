@@ -18,8 +18,7 @@
     </h2> 
     Category: {{mlist.category}}
 
-    <form onsubmit="share(`{{mlist.id}}`);" style="float: right;">
-        {% csrf_token %}
+    <form onsubmit="share({{mlist.id}});" style="float: right;">
         <input type="text" placeholder="Username" id="share-{{mlist.id}}" autofocus>
         <input type="submit" value="Share">
     </form>  

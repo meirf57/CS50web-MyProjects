@@ -81,3 +81,9 @@ function upPost(id, text){
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
+
+
+// share func
+function share(id){
+    alert(`form working through js, list id: ${id}`)
+}
