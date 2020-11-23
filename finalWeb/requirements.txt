@@ -1,0 +1,7 @@
+Requirements:
+
+- install python 3
+- install django
+- install urllib
+- install urllib.request
+- install requests
