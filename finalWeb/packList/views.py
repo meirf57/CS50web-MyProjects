@@ -172,7 +172,7 @@ def mylist(request, id):
         return render(request, "packList/my_list.html", {
                 "messages": ["This List was not found."],
                 "lists": My_List.objects.filter(creator=request.user)
-                })
+                })    
     try:
         items = Item.objects.filter(l_item=mlist)
     except:
@@ -182,14 +182,19 @@ def mylist(request, id):
         share = My_List.objects.filter(share=request.user)
     except:
         share = ''
-    # render page with data
-    return render(request, "packList/my_list.html", {
-        "form": NewItemForm(),
-        "mlist": mlist,
-        "items": items,
-        "lists": My_List.objects.filter(creator=request.user),
-        "share": share
-        })
+    if mlist.creator == request.user:
+        # render page with data
+        return render(request, "packList/my_list.html", {
+            "form": NewItemForm(),
+            "mlist": mlist,
+            "items": items,
+            "lists": My_List.objects.filter(creator=request.user),
+            "share": share
+            })
+    else:
+        return render(request, "packList/my_list.html", {
+                "messages": ["List not available."],
+                "lists": My_List.objects.filter(creator=request.user)})
 
 
 
