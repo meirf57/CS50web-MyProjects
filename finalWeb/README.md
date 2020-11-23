@@ -17,7 +17,7 @@ The idea is to keep track (and mark done), or share with other users the lists c
 Web application is based on Django framework.  
 I used SQLite3 as database.
 
-#### Justification
+## Justification
 
 This project is distinct from all previous projects so far. Why?
 
