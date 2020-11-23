@@ -85,5 +85,34 @@ function insertAfter(referenceNode, newNode) {
 
 // share func
 function share(id){
-    alert(`form working through js, list id: ${id}`)
+    var name = document.getElementById(`share-${id}`).value;
+    console.log(name);
+    
+    // Had to separate in to 2
+    add_share(id, name);
+}
+
+
+function add_share(id, name){
+    fetch('/share/', {
+        method: "PUT",
+        body: JSON.stringify({
+        id : id,
+        name: name
+        })
+        })
+    .then(response => response.json())
+    .then(res => {
+        if (res.status == 201) {
+            // remove input, and place message
+            document.getElementById(`share-${id}`).value = '';
+            var msg = document.getElementById('message');
+            msg.setAttribute("style", "display: block;");
+            msg.innerHTML = res.text;
+            return false;          
+        }
+    })
+    .catch(function (res) {
+        alert(res.message);
+    });
 }

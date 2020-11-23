@@ -168,20 +168,21 @@ def mylist(request, id):
     # method is get
     try:
         mlist = My_List.objects.get(id=id)
+    # if doesn't exist
     except:
         return render(request, "packList/my_list.html", {
                 "messages": ["This List was not found."],
-                "lists": My_List.objects.filter(creator=request.user)
+                "lists": My_List.objects.filter(creator=request.user),
+                "share": My_List.objects.filter(share=request.user)
                 })    
+    # get items if any
     try:
         items = Item.objects.filter(l_item=mlist)
     except:
         items = ["no items",]
-    # check if any lists shared
-    try:
-        share = My_List.objects.filter(share=request.user)
-    except:
-        share = ''
+    # to check if shared
+    name = mlist.share.all()
+    # if user is creator
     if mlist.creator == request.user:
         # render page with data
         return render(request, "packList/my_list.html", {
@@ -189,12 +190,25 @@ def mylist(request, id):
             "mlist": mlist,
             "items": items,
             "lists": My_List.objects.filter(creator=request.user),
-            "share": share
+            "share": My_List.objects.filter(share=request.user)
             })
+    # if list was shared with user
+    elif request.user in name:
+        # render page with data
+        return render(request, "packList/my_list.html", {
+            "form": NewItemForm(),
+            "mlist": mlist,
+            "items": items,
+            "lists": My_List.objects.filter(creator=request.user),
+            "share": My_List.objects.filter(share=request.user)
+            })
+    # else dispaly as if doesn't exist
     else:
         return render(request, "packList/my_list.html", {
-                "messages": ["List not available."],
-                "lists": My_List.objects.filter(creator=request.user)})
+                "messages": ["This List was not found."],
+                "lists": My_List.objects.filter(creator=request.user),
+                "share": My_List.objects.filter(share=request.user)
+                })
 
 
 
@@ -378,6 +392,7 @@ def addPost(request):
 
 
 
+@csrf_exempt
 @login_required
 def share(request):
     if request.method == "PUT":
@@ -386,12 +401,12 @@ def share(request):
         if data.get("id") is not None:
             id = data["id"]
         if data.get("name") is not None:
-            text = data["name"]
+            name = data["name"]
         try:
             ulist = My_List.objects.get(id=id)
-            user = User.objects.get(username=text)
+            user = User.objects.get(username=name)
             ulist.share.add(user)
-            return JsonResponse({'text': f"Shared with {text}", "status" : 201})
+            return JsonResponse({'text': f"Shared with {name}", "status" : 201})
         # return if error
         except:
             return JsonResponse({'error' : "user not added", "status" : 404})

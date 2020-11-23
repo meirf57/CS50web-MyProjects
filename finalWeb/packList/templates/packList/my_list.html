@@ -9,6 +9,7 @@
         </div>
         {% endfor %}
     {% endif %}
+    <div class="alert alert-warning" role="alert" id="message" style="display: none;"></div>
 
     {% if mlist %}
     <h2> Title: {{mlist.title}}
@@ -18,7 +19,7 @@
     </h2> 
     Category: {{mlist.category}}
 
-    <form onsubmit="share({{mlist.id}});" style="float: right;">
+    <form onsubmit="event.preventDefault(); share({{mlist.id}});" style="float: right;">
         <input type="text" placeholder="Username" id="share-{{mlist.id}}" autofocus>
         <input type="submit" value="Share">
     </form>  
