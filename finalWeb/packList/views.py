@@ -112,17 +112,16 @@ def index(request):
             share = My_List.objects.filter(share=request.user)
         except:
             share = ''
+        # render index with all data
+        return render(request, "packList/index.html", {
+            "form": NewListForm(),
+            "existing": False,
+            "lists": lists,
+            "share": share
+        })
     # not logged in 
     else:
-        lists = ''
-        share = ''
-    # render index with all data
-    return render(request, "packList/index.html", {
-        "form": NewListForm(),
-        "existing": False,
-        "lists": lists,
-        "share": share
-    })
+        return render(request, "packList/login.html")
 
 
 
